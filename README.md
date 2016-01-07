@@ -45,7 +45,7 @@ You can't do this yet. Neither can you configure the DummyAccount class. If peop
 ## `TvInputProvider`
 Create your service with the same package and class name as stated above. This service should extend one of the following classes:
 
-* `MediaPlayerInputProvider` if you plan on using Android's built-in `MediaPlayer` 
+* `MediaPlayerInputProvider` if you plan on using Android's built-in `MediaPlayer`, this class removes more boilerplate code
 * `TvInputProvider` otherwise
 
 When this happens you will be asked to implement a handful of classes. 
@@ -56,7 +56,58 @@ When this happens you will be asked to implement a handful of classes.
     
 ### Methods to Override
 #### `List<Channel> getAllChannels()`
-This method is meant to return all of the channels that this app provides.
+This method is meant to return all of the channels that this app provides. You can return a list where each item is a channel that you want to appear in the Live Channels app.
+
+#### `List<Program> getProgramsForChannel(Uri channelUri, Channel channelInfo, long startTimeMs, long endTimeMs)`
+This method is meant to return all of the programs within a given time interval (now to two weeks from now) for a specific channel. If you don't have any specific programs, you can use the `getGenericProgram` method listed a little later. However, you still need to adjust the start and end time for each program.
+
+~ Show an example
+
+#### `boolean onSetSurface(Surface surface)` 
+*NOT required in the `MediaPlayerInputProvider`*
+
+When the channel is loaded, it applies a surface. You can use this surface to display media.
+
+#### `void onSetStreamVolume(float volume)`
+*NOT required in the `MediaPlayerInputProvider`*
+
+This method is called when the channel's volume changes.
+
+#### `void onRelease()` 
+*NOT required in the `MediaPlayerInputProvider`*
+
+This method is called when the service closes.
+
+#### `View onCreateOverlayView()`
+You can display a view on top of your media source. Ordinarily this will be used for something simple like closed captioning but it can consist of any type of view. 
+
+If you don't plan on using this, you can simply return null.
+
+#### `boolean onTune(Channel channel)`
+This method is called when a particular channel is selected. You will have to adjust what media is being played to reflect the channel switch.
+
+### Other Useful Methods
+#### `List<Channel> getCurrentChannels(Context mContext)`
+You can get a list of channels that are already available in Live Channels
+
+#### `List<Program> getPrograms(Context mContext, Uri channelUri)`
+You can get a list of programs already available in Live Channels for a given channel
+
+#### `Program getGenericProgram(Channel channel)`
+You can create a simple program object that can be placed in the guide if you don't want to develop a static program guide. It'll be called "{channel name} Live".
+
+#### `void notifyVideoAvailable()`
+
+#### `void notifyVideoUnavailable(int reason)`
+
+* `REASON_TUNING`
+* `REASON_WEAK_SIGNAL`
+* `REASON_AUDIO_ONLY`
+* `REASON_BUFFERING`
+* `REASON_UNKNOWN`
+
+#### `void setOverlayEnabled(boolean enable)`
+
 
 ## Model
 ### Channel
@@ -64,3 +115,5 @@ The channel class represents a single channel, or a single stream of content.
 
 ### Program
 The program class represents a single program, ie. a single tv show, movie, or video.
+
+## Examples/Guides
