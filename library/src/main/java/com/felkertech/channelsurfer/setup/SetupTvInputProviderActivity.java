@@ -18,26 +18,35 @@ import com.felkertech.channelsurfer.sync.SyncUtils;
  */
 public abstract class SetupTvInputProviderActivity extends Activity {
     private String TAG = "SetupTvInputProviderActivity";
+    private String info;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        displayLayout();
         Log.d(TAG, "Created me");
 
-        String info = "";
+        info = "";
         if(getIntent() != null) {
             info = getIntent().getStringExtra(TvInputInfo.EXTRA_INPUT_ID);
             Log.d(TAG, info);
         }
 
         SyncUtils.setUpPeriodicSync(this, info);
-        setupTvInputProvider(info);
+        setupTvInputProvider();
     }
 
-    public void setupTvInputProvider(String extraInputId) {
+    public void displayLayout() {
         setContentView(R.layout.channel_surfer_setup);
+    }
+
+    public void requestSync() {
+        SyncUtils.requestSync(info);
+    }
+
+    public void setupTvInputProvider() {
         Log.d(TAG, "Requesting sync");
-        SyncUtils.requestSync(extraInputId);
+        requestSync();
         Handler h = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) {

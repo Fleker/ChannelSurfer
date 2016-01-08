@@ -31,7 +31,7 @@ import java.util.Map;
  * Static helper methods for working with {@link android.media.tv.TvContract}.
  */
 public class TvContractUtils {
-    private static final String TAG = "cumulus:TvContractUtils";
+    private static final String TAG = "TvContractUtils";
     private static final boolean DEBUG = true;
 
     private static final SparseArray<String> VIDEO_HEIGHT_TO_FORMAT_MAP =
@@ -54,6 +54,8 @@ public class TvContractUtils {
         Uri channelsUri = TvContract.buildChannelsUriForInput(inputId);
         Log.d(TAG, "For "+inputId);
         Log.d(TAG, "Creating cursor for "+channelsUri.toString());
+        Log.d(TAG, "Updating "+channels.size()+" channels");
+        Log.d(TAG, channels.toString());
         Uri all = Uri.parse("content://android.media.tv/channel");
         Cursor cursor = null;
         ContentResolver resolver = context.getContentResolver();

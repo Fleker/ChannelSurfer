@@ -3,12 +3,15 @@ package com.felkertech.channelsurfer.service;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.media.tv.TvContentRating;
 import android.media.tv.TvContract;
 import android.media.tv.TvInputManager;
 import android.media.tv.TvInputService;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.Surface;
@@ -16,8 +19,10 @@ import android.view.View;
 
 import com.felkertech.channelsurfer.model.Channel;
 import com.felkertech.channelsurfer.model.Program;
+import com.felkertech.channelsurfer.sync.SyncAdapter;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -80,6 +85,18 @@ public abstract class TvInputProvider extends TvInputService {
      */
     public abstract boolean onTune(Channel channel);
 
+    /**
+     * If you are pulling channel and program data from a web source or are otherwise
+     * doing it asynchronously, override the performCustomSync method and grab your
+     * data. Once you're done syncing, call super.performCustomSync to finish syncing.
+     *
+     * @param syncAdapter
+     * @param inputId
+     */
+    public void performCustomSync(SyncAdapter syncAdapter, String inputId) {
+        syncAdapter.performSync(this, inputId);
+    }
+
     /* Here are some helpful methods that I'd like to place in this class */
 
     /**
@@ -92,33 +109,40 @@ public abstract class TvInputProvider extends TvInputService {
                 "US_TV",
                 "US_TV_PG",
                 "US_TV_D", "US_TV_L");
-
-        String channels = TvContract.buildInputId(new ComponentName("com.felkertech.n.cumulustv", ".SampleTvInput"));
-        Uri channelsQuery = TvContract.buildChannelsUriForInput(channels);
-        Log.d(TAG, channels + " " + channelsQuery.toString());
-        List<Channel> list = new ArrayList<>();
-        Cursor cursor = null;
         try {
-            cursor = mContext.getContentResolver().query(channelsQuery, null, null, null, null);
-            while(cursor != null && cursor.moveToNext()) {
-                Channel channel = new Channel()
-                        .setNumber(cursor.getString(cursor.getColumnIndex(TvContract.Channels.COLUMN_DISPLAY_NUMBER)))
-                        .setName(cursor.getString(cursor.getColumnIndex(TvContract.Channels.COLUMN_DISPLAY_NAME)))
-                        .setOriginalNetworkId(cursor.getInt(cursor.getColumnIndex(TvContract.Channels.COLUMN_ORIGINAL_NETWORK_ID)))
-                        .setTransportStreamId(cursor.getInt(cursor.getColumnIndex(TvContract.Channels.COLUMN_TRANSPORT_STREAM_ID)))
-                        .setServiceId(cursor.getInt(cursor.getColumnIndex(TvContract.Channels.COLUMN_SERVICE_ID)))
-                        .setVideoHeight(1080)
-                        .setVideoWidth(1920)
-                        .setPrograms(getPrograms(getApplicationContext(),
-                                TvContract.buildChannelUri(cursor.getInt(cursor.getColumnIndex(TvContract.Channels._ID)))));
-                list.add(channel);
+            ApplicationInfo app = getApplicationContext().getPackageManager().getApplicationInfo(getApplicationContext().getPackageName(), PackageManager.GET_META_DATA);
+            Bundle bundle = app.metaData;
+            final String service = bundle.getString("TvInputService");
+            String channels = TvContract.buildInputId(new ComponentName(getPackageName(), service.substring(getPackageName().length())));
+            Uri channelsQuery = TvContract.buildChannelsUriForInput(channels);
+            Log.d(TAG, channels + " " + channelsQuery.toString());
+            List<Channel> list = new ArrayList<>();
+            Cursor cursor = null;
+            try {
+                cursor = mContext.getContentResolver().query(channelsQuery, null, null, null, null);
+                while(cursor != null && cursor.moveToNext()) {
+                    Channel channel = new Channel()
+                            .setNumber(cursor.getString(cursor.getColumnIndex(TvContract.Channels.COLUMN_DISPLAY_NUMBER)))
+                            .setName(cursor.getString(cursor.getColumnIndex(TvContract.Channels.COLUMN_DISPLAY_NAME)))
+                            .setOriginalNetworkId(cursor.getInt(cursor.getColumnIndex(TvContract.Channels.COLUMN_ORIGINAL_NETWORK_ID)))
+                            .setTransportStreamId(cursor.getInt(cursor.getColumnIndex(TvContract.Channels.COLUMN_TRANSPORT_STREAM_ID)))
+                            .setServiceId(cursor.getInt(cursor.getColumnIndex(TvContract.Channels.COLUMN_SERVICE_ID)))
+                            .setVideoHeight(1080)
+                            .setVideoWidth(1920)
+                            .setPrograms(getPrograms(getApplicationContext(),
+                                    TvContract.buildChannelUri(cursor.getInt(cursor.getColumnIndex(TvContract.Channels._ID)))));
+                    list.add(channel);
+                }
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
             }
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
+            return list;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
         }
-        return list;
+        return null;
     }
 
     /**
@@ -181,6 +205,86 @@ public abstract class TvInputProvider extends TvInputService {
                 .setVideoHeight(1080)
                 .setVideoWidth(1920)
                 .build();
+    }
+
+    public Program getProgramRightNow(Channel channel) {
+        ApplicationInfo app = null;
+        try {
+            app = getApplicationContext().getPackageManager().getApplicationInfo(getApplicationContext().getPackageName(), PackageManager.GET_META_DATA);
+            Bundle bundle = app.metaData;
+            final String service = bundle.getString("TvInputService");
+            String channels = TvContract.buildInputId(new ComponentName(getPackageName(), service.substring(getPackageName().length())));
+            Log.d(TAG, new ComponentName(getPackageName(), service.substring(getPackageName().length())).flattenToString());
+
+            Uri channelsQuery = TvContract.buildChannelsUriForInput(channels);
+            Cursor cursor = null;
+            try {
+                cursor = getApplicationContext().getContentResolver().query(channelsQuery, null, null, null, null);
+                while(cursor != null && cursor.moveToNext()) {
+                    Channel cursorChannel = new Channel()
+                            .setNumber(cursor.getString(cursor.getColumnIndex(TvContract.Channels.COLUMN_DISPLAY_NUMBER)))
+                            .setName(cursor.getString(cursor.getColumnIndex(TvContract.Channels.COLUMN_DISPLAY_NAME)))
+                            .setOriginalNetworkId(cursor.getInt(cursor.getColumnIndex(TvContract.Channels.COLUMN_ORIGINAL_NETWORK_ID)))
+                            .setTransportStreamId(cursor.getInt(cursor.getColumnIndex(TvContract.Channels.COLUMN_TRANSPORT_STREAM_ID)))
+                            .setServiceId(cursor.getInt(cursor.getColumnIndex(TvContract.Channels.COLUMN_SERVICE_ID)))
+                            .setVideoHeight(1080)
+                            .setVideoWidth(1920);
+                    if(cursorChannel.getName().equals(channel.getName())) {
+                        //!
+                        List<Program> programs = getPrograms(getApplicationContext(),
+                                TvContract.buildChannelUri(cursor.getInt(cursor.getColumnIndex(TvContract.Channels._ID))));
+                        Program currentProgram = null;
+                        for(Program p: programs) {
+                            if(p.getStartTimeUtcMillis() < new Date().getTime()) {
+                                currentProgram = p;
+                                Log.d(TAG, p.toString());
+                            }
+                        }
+                        Log.d(TAG, "OK");
+                        return currentProgram;
+                    }
+                }
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
+            }
+
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Finds the last exact hour and returns that in MS. 1:52 would become 1:00.
+     * @return An exact hour in milliseconds
+     */
+    public long getNearestHour() {
+        return getNearestHour(new Date().getTime());
+    }
+    /**
+     * Finds the last exact hour and returns that in MS. 1:52 would become 1:00.
+     * @param startMs Your starting time
+     * @return An exact hour in milliseconds
+     */
+    public long getNearestHour(long startMs) {
+        return (long) (Math.floor(startMs/1000/60/60)*1000*60*60);
+    }
+    /**
+     * Finds the last exact half hour and returns that in MS. 1:52 would become 1:30.
+     * @return An exact half hour in milliseconds
+     */
+    public long getNearestHalfHour() {
+        return (long) (Math.floor(new Date().getTime()/1000/60/30)*1000*60*30);
+    }
+    /**
+     * Finds the last exact half hour and returns that in MS. 1:52 would become 1:30.
+     * @param startMs Your starting time
+     * @return An exact half hour in milliseconds
+     */
+    public long getNearestHalfHour(long startMs) {
+        return (long) (Math.floor(startMs/1000/60/30)*1000*60*30);
     }
 
     /* TV Input Methods */

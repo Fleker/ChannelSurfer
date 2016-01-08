@@ -57,7 +57,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     private static final int SYNC_WINDOW_SEC = 60 * 60 * 12;  // 12 hours
     private static final int BATCH_OPERATION_COUNT = 100;
     public static final long FULL_SYNC_FREQUENCY_SEC = 60 * 60 * 24;  // daily
-    private static final int FULL_SYNC_WINDOW_SEC = 60 * 60 * 24 * 14;  // 2 weeks
+    private static final int FULL_SYNC_WINDOW_SEC = 60 * 60 * 24 * 3;  // 3 days, as it doesn't extend beyond that in the guide anyway
     private static final int SHORT_SYNC_WINDOW_SEC = 60 * 60;  // 1 hour
 
     private final Context mContext;
@@ -106,63 +106,78 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         LibraryUtils.getTvInputProvider(mContext, new LibraryUtils.TvInputProviderCallback() {
             @Override
             public void onTvInputProviderCallback(TvInputProvider provider) {
-                List<Channel> allChannels = provider.getAllChannels();
-                Log.d(TAG, allChannels.toString());
-                for (int i = 0; i < allChannels.size(); i++) {
-                    if (allChannels.get(i).getOriginalNetworkId() == 0)
-                        allChannels.get(i).setOriginalNetworkId(i + 1);
-                    if (allChannels.get(i).getTransportStreamId() == 0)
-                        allChannels.get(i).setTransportStreamId(i + 1);
-                }
-                TvContractUtils.updateChannels(getContext(), inputId, allChannels);
-
-                LongSparseArray<Channel> channelMap = TvContractUtils.buildChannelMap(
-                        mContext.getContentResolver(), inputId, allChannels);
-                if (channelMap == null) {
-                    Log.d(TAG, "?");
-                    Handler h = new Handler(Looper.getMainLooper()) {
-                        @Override
-                        public void handleMessage(Message msg) {
-                            super.handleMessage(msg);
-                            Toast.makeText(getContext(), "Couldn't find any channels. Uh-oh.", Toast.LENGTH_SHORT).show();
-                        }
-                    };
-                    h.sendEmptyMessage(0);
-                    //Let's not continue running
-                    return;
-                }
-                long startMs = new Date().getTime();
-                long endMs = startMs + FULL_SYNC_WINDOW_SEC * 1000;
-                Log.d(TAG, "Now start to get programs");
-                for (int i = 0; i < channelMap.size(); ++i) {
-                    Uri channelUri = TvContract.buildChannelUri(channelMap.keyAt(i));
-                    List<Program> programList = provider.getProgramsForChannel(channelUri, channelMap.valueAt(i), startMs, endMs);
-                    Log.d(TAG, "For " + channelMap.valueAt(i).toString());
-                    Log.d(TAG, programList.toString());
-//                    updatePrograms(channelUri, programList);
-                    //Let's double check programs
-                    Uri programEditor = TvContract.buildProgramsUriForChannel(channelUri);
-                    getContext().getContentResolver().delete(programEditor, null, null);
-                    for (Program p : programList) {
-                        p.setChannelId(channelMap.keyAt(i)); //Make sure you have the correct channel id value, it seems to be a foreign key
-                        Uri insert = getContext().getContentResolver().insert(programEditor, p.toContentValues());
-                        Log.d(TAG, (insert == null) + " " + p.toString());
-                        if (insert != null)
-                            Log.d(TAG, insert.toString());
-                    }
-
-                    Log.d(TAG, programEditor.toString());
-                    String[] projection = {TvContract.Programs.COLUMN_TITLE};
-                    try (Cursor c = getContext().getContentResolver().query(programEditor, projection, null, null, null)) {
-                        Log.d(TAG, "Found " + c.getCount() + " programs");
-                        while (c.moveToNext()) {
-                            Log.d(TAG, "Cursor read " + c.getString(c.getColumnIndex(TvContract.Programs.COLUMN_TITLE)));
-                        }
-                    }
-                }
-                Log.d(TAG, "Sync performed");
+                performCustomSync(provider, inputId);
             }
         });
+    }
+
+    public void performCustomSync(TvInputProvider provider, String inputId) {
+        provider.performCustomSync(this, inputId);
+    }
+
+    public void performSync(TvInputProvider provider, String inputId) {
+        Log.d(TAG, "Actually begin the sync");
+        List<Channel> allChannels = provider.getAllChannels();
+        Log.d(TAG, allChannels.toString());
+        for (int i = 0; i < allChannels.size(); i++) {
+            if (allChannels.get(i).getOriginalNetworkId() == 0)
+                allChannels.get(i).setOriginalNetworkId(i + 1);
+            if (allChannels.get(i).getTransportStreamId() == 0)
+                allChannels.get(i).setTransportStreamId(i + 1);
+        }
+        TvContractUtils.updateChannels(getContext(), inputId, allChannels);
+
+        LongSparseArray<Channel> channelMap = TvContractUtils.buildChannelMap(
+                mContext.getContentResolver(), inputId, allChannels);
+        if (channelMap == null) {
+            Log.d(TAG, "?");
+            Handler h = new Handler(Looper.getMainLooper()) {
+                @Override
+                public void handleMessage(Message msg) {
+                    super.handleMessage(msg);
+                    Toast.makeText(getContext(), "Couldn't find any channels. Uh-oh.", Toast.LENGTH_SHORT).show();
+                }
+            };
+            h.sendEmptyMessage(0);
+            //Let's not continue running
+            return;
+        }
+        long startMs = new Date().getTime();
+        long endMs = startMs + FULL_SYNC_WINDOW_SEC * 1000;
+        Log.d(TAG, "Now start to get programs");
+        for (int i = 0; i < channelMap.size(); ++i) {
+            Uri channelUri = TvContract.buildChannelUri(channelMap.keyAt(i));
+            List<Program> programList = provider.getProgramsForChannel(channelUri, channelMap.valueAt(i), startMs, endMs);
+            Log.d(TAG, "Okay, we NEED to set the channel id first");
+            for(Program p: programList) {
+                p.setChannelId(channelMap.keyAt(i));
+            }
+            Log.d(TAG, "For " + channelMap.valueAt(i).toString());
+            Log.d(TAG, programList.toString());
+            updatePrograms(channelUri, programList);
+            //Let's double check programs
+            Uri programEditor = TvContract.buildProgramsUriForChannel(channelUri);
+
+            //Mass delete and re-insertion
+            /*getContext().getContentResolver().delete(programEditor, null, null);
+            for (Program p : programList) {
+                p.setChannelId(channelMap.keyAt(i)); //Make sure you have the correct channel id value, it seems to be a foreign key
+                Uri insert = getContext().getContentResolver().insert(programEditor, p.toContentValues());
+                Log.d(TAG, (insert == null) + " " + p.toString());
+                if (insert != null)
+                    Log.d(TAG, insert.toString());
+            }*/
+
+            /*Log.d(TAG, programEditor.toString());
+            String[] projection = {TvContract.Programs.COLUMN_TITLE};
+            try (Cursor c = getContext().getContentResolver().query(programEditor, projection, null, null, null)) {
+                Log.d(TAG, "Found " + c.getCount() + " programs");
+                while (c.moveToNext()) {
+                    Log.d(TAG, "Cursor read " + c.getString(c.getColumnIndex(TvContract.Programs.COLUMN_TITLE)));
+                }
+            }*/
+        }
+        Log.d(TAG, "Sync performed");
     }
 
     /**

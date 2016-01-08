@@ -23,11 +23,13 @@ public class LibraryUtils {
     public static TvInputProvider getTvInputProvider(Context mContext, final TvInputProviderCallback callback) {
         ApplicationInfo app = null;
         try {
+            Log.d(TAG, mContext.getPackageName()+" >");
             app = mContext.getPackageManager().getApplicationInfo(mContext.getPackageName(), PackageManager.GET_META_DATA);
             Bundle bundle = app.metaData;
             final String service = bundle.getString("TvInputService");
+            Log.d(TAG, service);
             try {
-                Log.d(TAG, "Constructors: "+Class.forName(service).getConstructors().length);
+                Log.d(TAG, "Constructors: " + Class.forName(service).getConstructors().length);
                 Log.d(TAG, "Constructor 1: " + Class.forName(service).getConstructors()[0].toString());
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
@@ -42,6 +44,9 @@ public class LibraryUtils {
                         }
                     }
                 });
+            } catch(ClassNotFoundException e) {
+                Log.e(TAG, e.getMessage());
+                e.printStackTrace();
             } catch(Exception e) {
                 e.printStackTrace();
             }

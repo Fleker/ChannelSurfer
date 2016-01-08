@@ -1,9 +1,6 @@
 # ChannelSurfer
 Simple Live Channels library for Android TV
 
-## CAUTION
-Hello. If you're reading this it means you're very enthusiastic about this libary. So am I. That's why I wrote the README ahead of time. The library isn't live yet, but check back soon.
-
 ## What is this?
 I had already gotten some experience with creating an app which supported Android TV's Live Channels when I developed and published <a href='https://github.com/fleker/cumulustv'></a>Cumulus TV</a>. 
 
@@ -11,7 +8,7 @@ As a fan of the feature, I wanted more apps to implement it. However, I knew fir
 
 ChannelSurfer takes care of all these headaches. You can simply use a single class to take care of both the EPG (electronic program guide) and playback. It contains all the boilerplate code and XML files which can simply be imported by:
 
-    compile 'com.github.fleker:channelsurfer:0.1.0'
+    compile 'com.github.fleker:channelsurfer:0.1.1'
     
 ## Manifest Changes
 The necessary permissions are already added to your app, as are a built-in `SyncAdapter` and `DummyAccount` implementation. 
@@ -39,8 +36,38 @@ You also need to have another piece of meta-data inside your application. This w
             android:name="TvInputService"
             android:value="com.hitherejoe.vineyard.livechannels.VineInputProvider" />
 
+An activity needs to be declared that is opened when Live Channels sets up your source. It must be declared in the manifest as well: 
+    
+    <activity android:name=".livechannels.VineSetupActivity"
+            android:exported="true"/>
+            
+And as a string resource pointing to it must declare the full class name:
+    
+    <string name="tv_input_activity">com.hitherejoe.livechannels.VineSetupActivity</string>
+            
+But this can simply extend the `SimpleTvSetup` activity.
+
+    public class VineSetupActivity extends SimpleTvSetup {
+    
+    }
+    
+It is possible that you'll need to add another activity to your manifest
+
 ### Customizing Sync Adapter
 You can't do this yet. Neither can you configure the DummyAccount class. If people think it's a good idea, I'm all for it.
+
+### Customizing Setup Activity
+The default setup activity is not very attractive. You may want to create a setup activity that uses your own branding. If so, your Setup Activity can override a couple of methods.
+
+    @Override
+    public void displayLayout() 
+    
+The `displayLayout` method, as the name suggests, sets the content view of your window based on a layout. Any view based logic should be placed here.
+
+    @Override
+    public void setupTvInputProvider()
+    
+The `setupTvInputProvider` method is called when the syncing process begins. This methods should contain your activity's behaviors. If you override this, make sure you call `requestSync` at some point.
 
 ## `TvInputProvider`
 Create your service with the same package and class name as stated above. This service should extend one of the following classes:
@@ -60,8 +87,6 @@ This method is meant to return all of the channels that this app provides. You c
 
 #### `List<Program> getProgramsForChannel(Uri channelUri, Channel channelInfo, long startTimeMs, long endTimeMs)`
 This method is meant to return all of the programs within a given time interval (now to two weeks from now) for a specific channel. If you don't have any specific programs, you can use the `getGenericProgram` method listed a little later. However, you still need to adjust the start and end time for each program.
-
-~ Show an example
 
 #### `boolean onSetSurface(Surface surface)` 
 *NOT required in the `MediaPlayerInputProvider`*
@@ -87,6 +112,9 @@ If you don't plan on using this, you can simply return null.
 This method is called when a particular channel is selected. You will have to adjust what media is being played to reflect the channel switch.
 
 ### Other Useful Methods
+#### `void performCustomSync(SyncAdapter syncAdapter, String inputId)`
+If you are pulling channel and program data from a web source or are otherwise doing it asynchronously, override the performCustomSync method and grab your data. Once you're done syncing, call `super.performCustomSync` to finish syncing.
+
 #### `List<Channel> getCurrentChannels(Context mContext)`
 You can get a list of channels that are already available in Live Channels
 
@@ -97,8 +125,10 @@ You can get a list of programs already available in Live Channels for a given ch
 You can create a simple program object that can be placed in the guide if you don't want to develop a static program guide. It'll be called "{channel name} Live".
 
 #### `void notifyVideoAvailable()`
+When your video is available, notify the system so that it can display the channel surface.
 
 #### `void notifyVideoUnavailable(int reason)`
+When your video is not available, notify the system with a particular reason to not display janky or borken media. You can use on the constants below.
 
 * `REASON_TUNING`
 * `REASON_WEAK_SIGNAL`
@@ -107,13 +137,102 @@ You can create a simple program object that can be placed in the guide if you do
 * `REASON_UNKNOWN`
 
 #### `void setOverlayEnabled(boolean enable)`
+To display your custom view on top of the channel surface, you must enable it. Additionally, you must notify the system that your video is available.
 
+#### `Program getProgramRightNow(Channel channel)`
+What's playing on a given channel right now? This method returns that program.
+
+#### Get Nearest Hour / Half-Hour
+Rounding is nice. Many channels will organize programs into hour or half-hour segments so that it's easy for people to remember.  
+
+`getNearestHour()` and `getNearestHalfHour()` will round the current time down to the hour or half-hour respectively so you can quickly insert those times into your programs.
+
+You can also pass any number of milliseconds and that time will be rounded down as well.
+
+
+### WebViewInputProvider
+What if you could set any website as a Live Channel? There's any easy way to do that. Just extend the `WebViewInputProvider` class. It simplifies the methods that you need to override. 
+
+In your `onTune` method, you can simply call `loadUrl(String url)` to load the site.
 
 ## Model
 ### Channel
-The channel class represents a single channel, or a single stream of content.
+The channel class represents a single channel, or a single stream of content. A channel should, at the very least, have a channel name and channel number.
+
+| Methods | Return | Description |
+| :---    | :---   | :---        |
+| `Channel()` | `Channel` | Creates a new channel object |
+| `getNumber()` | `String` | Returns the channel number | 
+| `setNumber(String)` | `Channel` | Changes the channel number, returns itself |
+| `getName()` | `String` | Returns the name of the channel |
+| `setName(String)` | `Channel` | Changes the channel name, returns itself |
+| `getLogoUrl()` | `String` | Returns the URL of the channel's logo |
+| `setLogoUrl(String)` | `Channel` | Changes the channel logo, returns itself |
+| `getOriginalNetworkId()` | `int` | Returns the channel's original network id (don't worry about this) |
+| `setOriginalNetworkId(int)` | `Channel` | Changes the channel's original network id (don't wory about this) |
+| `getTransportStreamId()` | `int` | Returns the channel's transport stream id (don't worry about this) |
+| `setTransportStreamId(int)` | `Channel` | Changes the channel's transport stream id (don't wory about this) |
+| `getServiceId()` | `int` | Returns the channel's service id (don't worry about this) |
+| `setServiceId(int)` | `Channel` | Changes the channel's service id (don't wory about this) |
+| `getVideoWidth()` | `int` | Gets the width of a standard video on this channel 
+| `setVideoWidth(int)` | `Channel` | Changes the width of a standard video on the channel (ie. 1920), returns itself
+| `getVideoheight()` | `int` | Gets the height of a standard video on this channel |
+| `setVideoheight(int)` | `Channel` | Changes the height of a standard video on the channel (ie. 1080), returns itself |
+| `getPrograms()` | `List<Program>` | Returns a list of programs that are on this channel |
+| `setPrograms(List<Program>)` | `Channel` | Sets the list of programs that are on this channel, returns itself. Note this will not be used. You should set your programs through the `getProgramsForChannel` method.
+| `toString()` | `String` | Returns a string representation of this channel
+
 
 ### Program
 The program class represents a single program, ie. a single tv show, movie, or video.
 
+To create a new Program, create a new `Program.Builder()` object.
+
+#### Methods in Program.Builder
+| Method Name | Description |
+| :--- |        :--- |         :--- |
+| `setProgramId(long)` | Sets the id of this program |
+| `setTitle(String)`   | Sets the name of this program, ie. the series name | 
+| `setEpisodeTitle(String)` | For episodic content, this sets the  title of that particular episode |
+| `setSeasonNumber(int)` | For episodic content, this sets the season or series of that particular episode |
+| `setEpisodeNumber(int)` | For episodic content, this sets the number of that particular episode within a given season |
+| `setStartTimeUtcMillis(long)` | Sets the start time of this program, in MS since the Unix epoch |
+| `setEndTimeUtcMillis(long)` | Sets the end time of this program, in MS since the Unix epoch |
+| `setDescription(String)` | Sets the description of your program, can be an episode summary. It should <= 255 chars |
+| `setLongDescription(String)` | Sets a long description of your program. This is optional, and it doesn't seem exposed in the UI at the moment |
+| `setVideoWidth(int)` | Sets the video width for this program |
+| `setVideoHeight(int)` | Sets the video height for this program |
+| `setContentRatings(TvContentRating[])` | Sets the ratings for your program ,useful for parental controls, but not strictly necessary |
+| `setPosterArtUri(String)` | Sets the location for the program's poster art; can be null |
+| `setThumbnailUri(String)` | Sets the location for the program's thumbnail; can be null |
+| `setCanonicalGenres(String)` | Sets the program's genres. When set, they will allow users to find this program by filtering in the program guide |
+| `setInternalProviderData(String)` | If you want to set any particular data, here is where you would do it |
+| `build()` | This creates your program object |
+| `setChannelId(long)` | Sets the channel. (Don't worry about this) |
+
+#### Methods in Program Class
+When you finished building your program, there are more things you can do with it. There are getters for all of the properties that you have set. Additionally,
+
+`setStartTimeUtcMillis(long)` and `setEndTimeUtcMillis(long)` allow you to adjust the start and end time for a given program, fine tuning it until you return the final list for syncing. 
+
+To find out how long a program is in milliseconds, call the `getDuration()` method.
+
 ## Examples/Guides
+### Returning generic channels
+In a Live Channel for quick videos, like a stream of Vines, it may not make sense to add hundreds of tiny videos to a guide. Instead, you can just display long chunks of time devoted to streams.
+
+In this snippet, we create a number of programs, each an hour long, with some custom properties based on the channel name.
+
+    @Override
+    public List<Program> getProgramsForChannel(Uri channelUri, Channel channelInfo, long startTimeMs, long endTimeMs) {
+        int programs = (int) ((endTimeMs-startTimeMs)/1000/60/60); //Hour long segments
+        int SEGMENT = 1000*60*60; //Hour long segments
+        List<Program> programList = new ArrayList<>();
+        for(int i=0;i<programs;i++) {
+            programList.add(getGenericProgram(channelInfo)
+                    .setStartTimeUtcMillis((startTimeMs + SEGMENT * i))
+                    .setEndTimeUtcMillis((startTimeMs + SEGMENT * (i + 1)))
+            );
+        }
+        return programList;
+    }

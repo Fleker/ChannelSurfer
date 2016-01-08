@@ -1,5 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.felkertech.channelsurfer">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.felkertech.sample.channelsurfer"
+    tools:ignore="MissingLeanbackLauncher,MissingLeanbackSupport">
 
     <application
         android:allowBackup="true"
@@ -7,7 +10,33 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.Leanback">
+        <service
+            android:name=".SampleTvInputProvider"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.BIND_TV_INPUT">
+            <intent-filter>
+                <action android:name="android.media.tv.TvInputService" />
+            </intent-filter>
 
+            <meta-data
+                android:name="android.media.tv.input"
+                android:resource="@xml/channel_surfer_tv_input" />
+        </service>
+
+        <meta-data
+            android:name="TvInputService"
+            android:value="com.felkertech.sample.channelsurfer.SampleTvInputProvider" />
+
+        <activity
+            android:name=".SampleTvSetup"
+            android:exported="true"
+            android:enabled="true"
+            android:label="@string/title_activity_sample_tv_setup">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
