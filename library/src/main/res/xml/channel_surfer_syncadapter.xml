@@ -12,7 +12,7 @@
 -->
 <sync-adapter xmlns:android="http://schemas.android.com/apk/res/android"
     android:contentAuthority="android.media.tv"
-    android:accountType="ChannelSurfer"
+    android:accountType="@string/app_name"
     android:userVisible="false"
     android:supportsUploading="false"
     android:allowParallelSyncs="false"

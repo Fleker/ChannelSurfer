@@ -28,9 +28,10 @@ public class LibraryUtils {
             Bundle bundle = app.metaData;
             final String service = bundle.getString("TvInputService");
             Log.d(TAG, service);
+            Log.d(TAG, mContext.getString(R.string.app_name));
             try {
                 Log.d(TAG, "Constructors: " + Class.forName(service).getConstructors().length);
-                Log.d(TAG, "Constructor 1: " + Class.forName(service).getConstructors()[0].toString());
+//                Log.d(TAG, "Constructor 1: " + Class.forName(service).getConstructors()[0].toString());
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {

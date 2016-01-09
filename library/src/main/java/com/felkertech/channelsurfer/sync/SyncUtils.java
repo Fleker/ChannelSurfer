@@ -16,7 +16,7 @@ public class SyncUtils {
     private static final String CONTENT_AUTHORITY = TvContract.AUTHORITY;
 
     public static void setUpPeriodicSync(Context context, String inputId) {
-        Account account = DummyAccountService.getAccount();
+        Account account = DummyAccountService.getAccount(context);
         AccountManager accountManager =
                 (AccountManager) context.getSystemService(Context.ACCOUNT_SERVICE);
         if (!accountManager.addAccountExplicitly(account, null, null)) {
@@ -30,13 +30,13 @@ public class SyncUtils {
                 SyncAdapter.SYNC_FREQUENCY_SEC/6); //Sync every hour b/c why not?
     }
 
-    public static void requestSync(String inputId) {
+    public static void requestSync(Context mContext, String inputId) {
         Bundle bundle = new Bundle();
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         bundle.putString(SyncAdapter.BUNDLE_KEY_INPUT_ID, inputId);
         Log.d(TAG, "Request sync");
-        ContentResolver.requestSync(DummyAccountService.getAccount(), CONTENT_AUTHORITY,
+        ContentResolver.requestSync(DummyAccountService.getAccount(mContext), CONTENT_AUTHORITY,
                 bundle);
     }
 }

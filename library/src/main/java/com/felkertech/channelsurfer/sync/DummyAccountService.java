@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 
+import com.felkertech.channelsurfer.R;
+
 /**
  * Dummy account service for SyncAdapter. Note that this does nothing because this input uses a feed
  * which does not require any authentication.
@@ -17,9 +19,10 @@ import android.os.IBinder;
 public class DummyAccountService extends Service {
     private static final String TAG = "DummyAccountService";
     private DummyAuthenticator mAuthenticator;
-    public static final String ACCOUNT_NAME = "ChannelSurfer";
+//    public static final String ACCOUNT_NAME = "";
 
-    public static Account getAccount() {
+    public static Account getAccount(Context mContext) {
+        String ACCOUNT_NAME = mContext.getString(R.string.app_name);
         return new Account(ACCOUNT_NAME, ACCOUNT_NAME);
     }
 

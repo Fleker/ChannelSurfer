@@ -38,20 +38,25 @@ You also need to have another piece of meta-data inside your application. This w
 
 An activity needs to be declared that is opened when Live Channels sets up your source. It must be declared in the manifest as well: 
     
-    <activity android:name=".livechannels.VineSetupActivity"
-            android:exported="true"/>
+    <activity
+            android:name=".SampleTvSetup"
+            android:exported="true"
+            android:enabled="true"
+            android:label="@string/title_activity_sample_tv_setup">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
             
 And as a string resource pointing to it must declare the full class name:
     
-    <string name="tv_input_activity">com.hitherejoe.livechannels.VineSetupActivity</string>
+    <string name="tv_input_activity">com.felkertech.sample.channelsurfer.SampleTvSetup</string>
             
-But this can simply extend the `SimpleTvSetup` activity.
+But this can simply extend the `SimpleTvSetup` activity without overriding any methods.
 
-    public class VineSetupActivity extends SimpleTvSetup {
+    public class SampleTvSetup extends SimpleTvSetup {
     
     }
-    
-It is possible that you'll need to add another activity to your manifest
 
 ### Customizing Sync Adapter
 You can't do this yet. Neither can you configure the DummyAccount class. If people think it's a good idea, I'm all for it.
@@ -221,7 +226,7 @@ To find out how long a program is in milliseconds, call the `getDuration()` meth
 ### Returning generic channels
 In a Live Channel for quick videos, like a stream of Vines, it may not make sense to add hundreds of tiny videos to a guide. Instead, you can just display long chunks of time devoted to streams.
 
-In this snippet, we create a number of programs, each an hour long, with some custom properties based on the channel name.
+In this snippet, we create a number of programs, each an hour long on the hour, with some custom properties based on the channel name.
 
     @Override
     public List<Program> getProgramsForChannel(Uri channelUri, Channel channelInfo, long startTimeMs, long endTimeMs) {
@@ -229,9 +234,10 @@ In this snippet, we create a number of programs, each an hour long, with some cu
         int SEGMENT = 1000*60*60; //Hour long segments
         List<Program> programList = new ArrayList<>();
         for(int i=0;i<programs;i++) {
-            programList.add(getGenericProgram(channelInfo)
-                    .setStartTimeUtcMillis((startTimeMs + SEGMENT * i))
-                    .setEndTimeUtcMillis((startTimeMs + SEGMENT * (i + 1)))
+            programList.add(new Program.Builder(getGenericProgram(channelInfo))
+                            .setStartTimeUtcMillis((getNearestHour() + SEGMENT * i))
+                            .setEndTimeUtcMillis((getNearestHour() + SEGMENT * (i + 1)))
+                            .build()
             );
         }
         return programList;

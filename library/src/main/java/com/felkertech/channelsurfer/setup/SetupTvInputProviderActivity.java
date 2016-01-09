@@ -41,7 +41,7 @@ public abstract class SetupTvInputProviderActivity extends Activity {
     }
 
     public void requestSync() {
-        SyncUtils.requestSync(info);
+        SyncUtils.requestSync(this, info);
     }
 
     public void setupTvInputProvider() {
