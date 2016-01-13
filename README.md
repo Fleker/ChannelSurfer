@@ -8,8 +8,14 @@ As a fan of the feature, I wanted more apps to implement it. However, I knew fir
 
 ChannelSurfer takes care of all these headaches. You can simply use a single class to take care of both the EPG (electronic program guide) and playback. It contains all the boilerplate code and XML files which can simply be imported by:
 
-    compile 'com.github.fleker:channelsurfer:0.1.1'
+    compile 'com.github.fleker:channelsurfer:0.2.1'
     
+## Release Notes
+### 0.2.1
+* Imports and uses the `ExoPlayer` library in most of its `TvInputProvider` classes
+* More `TvInputProvider` classes for more specific use cases: `ExoPlayerInputProvider`, `MediaPlayerInputProvider`, `StreamingInputProvider`
+* `Channel` class now has an `internalProviderData` attribute to store plain data
+
 ## Manifest Changes
 The necessary permissions are already added to your app, as are a built-in `SyncAdapter` and `DummyAccount` implementation. 
 
@@ -160,6 +166,15 @@ What if you could set any website as a Live Channel? There's any easy way to do 
 
 In your `onTune` method, you can simply call `loadUrl(String url)` to load the site.
 
+### ExoPlayerInputProvider
+The `MediaPlayer` class is built-in, but the external <a href='https://github.com/google/ExoPlayer/'>`ExoPlayer`</a> library provides more functionality and support. This class can play most types of video URLs through the `play(String)` method.
+
+### MultimediaInputProvider
+If you plan for your `TvInputService` to use both video streams through ExoPlayer and load websites, you can extend this class. When you start a program through the `play` method, it will play a video or open a website depending on the type of URL passed.
+
+### StreamingInputProvider
+This is the simplest class, designed for any sort of web URL or web stream. All you have to do is provide a list of channels, making sure you provide a URL in the `setInternalProviderData(String)` method. Program generation and playback are provided. 
+
 ## Model
 ### Channel
 The channel class represents a single channel, or a single stream of content. A channel should, at the very least, have a channel name and channel number.
@@ -183,6 +198,8 @@ The channel class represents a single channel, or a single stream of content. A 
 | `setVideoWidth(int)` | `Channel` | Changes the width of a standard video on the channel (ie. 1920), returns itself
 | `getVideoheight()` | `int` | Gets the height of a standard video on this channel |
 | `setVideoheight(int)` | `Channel` | Changes the height of a standard video on the channel (ie. 1080), returns itself |
+| `getInternalProviderData()` | `String` | Gets a user-defined string of data |
+| `setInternalProviderData(String)` | `Channel` | Changes the user-defined string of data |
 | `getPrograms()` | `List<Program>` | Returns a list of programs that are on this channel |
 | `setPrograms(List<Program>)` | `Channel` | Sets the list of programs that are on this channel, returns itself. Note this will not be used. You should set your programs through the `getProgramsForChannel` method.
 | `toString()` | `String` | Returns a string representation of this channel
