@@ -46,6 +46,7 @@ public abstract class MultimediaInputProvider extends ExoPlayerInputProvider {
         /*if(webInputPlayer == null)
             webInputPlayer = new WebInputPlayer(getApplicationContext());
         webInputPlayer.loadUrl(url);*/
+        Log.d(TAG, "Load url "+url);
         URL = url;
     }
 
@@ -56,6 +57,7 @@ public abstract class MultimediaInputProvider extends ExoPlayerInputProvider {
      */
     @Override
     public void play(final String uri) {
+        Log.d(TAG, "Start playing "+uri);
         notifyVideoUnavailable(REASON_BUFFERING);
         isWeb = false;
         TvInputPlayer.Callback callback = new TvInputPlayer.Callback() {
@@ -81,6 +83,7 @@ public abstract class MultimediaInputProvider extends ExoPlayerInputProvider {
                 Log.e(TAG, e.getMessage()+"");
                 if(e.getMessage().contains("Extractor")) {
                     Log.d(TAG, "Cannot play the stream, try loading it as a website");
+                    Log.d(TAG, "Open "+uri);
                     //Pretend this is a website
                     /*isWeb = true;
                     loadUrl(uri);

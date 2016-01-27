@@ -56,6 +56,19 @@ public class Channel {
         return this;
     }
 
+    /**
+     * If the logo is local, you can provide a drawable instead of a URL
+     * Provide the id from R.drawable.{id} as a String
+     * @param id resource name of your logo
+     * @param yourPackageName Package name of your app (should be a temporary thing)
+     * @return Itself
+     */
+    public Channel setLogoDrawable(String id, String yourPackageName) {
+        String endpoint = "android.resource://"+id+"/drawable/";
+        this.logoUrl = endpoint + id;
+        return this;
+    }
+
     public int getOriginalNetworkId() {
         return originalNetworkId;
     }

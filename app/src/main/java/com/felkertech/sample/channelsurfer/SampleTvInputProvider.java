@@ -27,6 +27,7 @@ public class SampleTvInputProvider extends MultimediaInputProvider {
         channels.add(new Channel()
             .setName("Big Buck Bunny")
             .setNumber("2"));
+        Log.d(TAG, "Get channels");
         return channels;
     }
 
@@ -35,6 +36,7 @@ public class SampleTvInputProvider extends MultimediaInputProvider {
         int programs = (int) ((endTimeMs-startTimeMs)/1000/60/60); //Hour long segments
         int SEGMENT = 1000*60*60; //Hour long segments
         List<Program> programList = new ArrayList<>();
+        Log.d(TAG, "Get programs");
         for(int i=0;i<programs;i++) {
             Program p = null;
             if(channelInfo.getNumber().equals("1")) {
