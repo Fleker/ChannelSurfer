@@ -168,8 +168,7 @@ Rounding is nice. Many channels will organize programs into hour or half-hour se
 You can also pass any number of milliseconds and that time will be rounded down as well.
 
 #### Get local video uri
-If your stream is playing a video that already exists, you can use the method `getLocalVideoUri(int resId)` to get the Uri of this video as a string.
-
+If your stream is playing a video that already exists, you can use the method `getLocalVideoUri(int resId)` to get the Uri of this video as a string. There is an alias method `getLocalAudioUri(int resId)` which can be used for local audio files.
 
 ### WebViewInputProvider
 What if you could set any website as a Live Channel? There's any easy way to do that. Just extend the `WebViewInputProvider` class. It simplifies the methods that you need to override. 
@@ -254,7 +253,7 @@ In many modern channel streaming services, you don't only have to provide a live
 
 In order to support time shifting, your `TvInputProvider` must implement the `TimeShiftable` interface and then implement the methods. It does not appear as if these APIs enabled in the Live Channels app though.
 
-**Note: these APIs on only available on Android M (API version 23) or higher**
+**Note: these APIs on only available on Android Marshmallow (API version 23) or higher**
 
 ## Examples/Guides
 ### Returning generic channels
