@@ -2,4 +2,5 @@
     <string name="app_name">ChannelSurfer Sample</string>
     <string name="tv_input_activity">com.felkertech.sample.channelsurfer.SampleTvSetup</string>
     <string name="title_activity_sample_tv_setup">SampleTvSetup</string>
+    <string name="title_activity_main">MainActivity</string>
 </resources>

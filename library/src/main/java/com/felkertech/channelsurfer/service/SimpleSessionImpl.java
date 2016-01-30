@@ -1,25 +1,36 @@
 package com.felkertech.channelsurfer.service;
 
+import android.content.Context;
 import android.database.Cursor;
+import android.media.PlaybackParams;
+import android.media.tv.TvContentRating;
 import android.media.tv.TvContract;
 import android.media.tv.TvInputManager;
 import android.media.tv.TvInputService;
 import android.net.Uri;
+import android.os.Build;
 import android.util.Log;
 import android.view.Surface;
 import android.view.View;
 
+import com.felkertech.channelsurfer.TimeShiftable;
 import com.felkertech.channelsurfer.model.Channel;
 
 /**
- * Simple session implementation which plays local videos on the application's tune request.
+ * Simple session implementation which plays videos on the application's tune request, integrated
+ * with a TvInputProvider.
  */
 public class SimpleSessionImpl extends TvInputService.Session {
     private String TAG = "SimpleSession";
+    private Channel currentChannel;
     private TvInputProvider tvInputProvider;
+    private TvInputManager inputManager;
     SimpleSessionImpl(TvInputProvider tvInputProvider) {
         super(tvInputProvider);
         this.tvInputProvider = tvInputProvider;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && tvInputProvider instanceof TimeShiftable) {
+            notifyTimeShiftStatusChanged(TvInputManager.TIME_SHIFT_STATUS_AVAILABLE);
+        }
     }
     @Override
     public void onRelease() {
@@ -45,6 +56,7 @@ public class SimpleSessionImpl extends TvInputService.Session {
     public View onCreateOverlayView() {
         return tvInputProvider.onCreateOverlayView();
     }
+
     @Override
     public boolean onTune(Uri channelUri) {
         notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_TUNING);
@@ -67,10 +79,94 @@ public class SimpleSessionImpl extends TvInputService.Session {
                     .setServiceId(cursor.getInt(cursor.getColumnIndex(TvContract.Channels.COLUMN_SERVICE_ID)))
                     .setVideoHeight(1080)
                     .setVideoWidth(1920);
+            this.currentChannel = channel;
+            TvInputManager mTvInputManager = (TvInputManager) tvInputProvider.getApplicationContext().getSystemService(Context.TV_INPUT_SERVICE);
+            if(mTvInputManager.isParentalControlsEnabled()) {
+                TvContentRating blockedRating = null;
+                for(int i=0;i<tvInputProvider.getProgramRightNow(channel).getContentRatings().length;i++) {
+                    blockedRating = (mTvInputManager.isRatingBlocked(tvInputProvider.getProgramRightNow(channel).getContentRatings()[i]) && blockedRating == null)?tvInputProvider.getProgramRightNow(channel).getContentRatings()[i]:null;
+                }
+                if(blockedRating != null) {
+                    notifyContentBlocked(blockedRating);
+                }
+            }
+            notifyContentAllowed();
             return tvInputProvider.onTune(channel);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
+    }
+
+    @Override
+    public void layoutSurface(final int left, final int top, final int right,
+                              final int bottom) {
+        int[] surfaceDimensions = tvInputProvider.getLayoutDimensions();
+        if(surfaceDimensions == null)
+            super.layoutSurface(left, top, right, bottom);
+        else
+            super.layoutSurface(surfaceDimensions[0], surfaceDimensions[1], surfaceDimensions[2], surfaceDimensions[3]);
+    }
+
+    @Override
+    public void onTimeShiftPause() {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (tvInputProvider instanceof TimeShiftable) {
+                ((TimeShiftable) tvInputProvider).onMediaPause();
+            }
+        }
+    }
+
+    @Override
+    public void onTimeShiftResume() {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (tvInputProvider instanceof TimeShiftable) {
+                ((TimeShiftable) tvInputProvider).onMediaResume();
+            }
+        }
+    }
+
+    @Override
+    public void onTimeShiftSeekTo(long timeMs) {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (tvInputProvider instanceof TimeShiftable) {
+                ((TimeShiftable) tvInputProvider).onMediaSeekTo(timeMs);
+            }
+        }
+    }
+
+    @Override
+    public void onTimeShiftSetPlaybackParams(PlaybackParams params) {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (tvInputProvider instanceof TimeShiftable) {
+                ((TimeShiftable) tvInputProvider).onMediaSetPlaybackParams(params);
+            }
+        }
+    }
+
+    @Override
+    public long onTimeShiftGetStartPosition() {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (tvInputProvider instanceof TimeShiftable) {
+                return ((TimeShiftable) tvInputProvider).mediaGetStartMs();
+            } else {
+                return TvInputManager.TIME_SHIFT_INVALID_TIME;
+            }
+        } else {
+            return -1;
+        }
+    }
+
+    @Override
+    public long onTimeShiftGetCurrentPosition() {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (tvInputProvider instanceof TimeShiftable) {
+                return ((TimeShiftable) tvInputProvider).mediaGetCurrentMs();
+            } else {
+                return TvInputManager.TIME_SHIFT_INVALID_TIME;
+            }
+        } else {
+            return -1;
+        }
     }
 }

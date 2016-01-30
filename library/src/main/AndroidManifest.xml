@@ -23,6 +23,7 @@
 
     <application
         android:allowBackup="true"
+        android:restrictedAccountType="@string/app_name"
         android:supportsRtl="true">
         <!-- Channel Surfer -->
         <activity
@@ -48,6 +49,7 @@
         </service>
         <service
             android:name=".sync.DummyAccountService"
+            android:icon="@drawable/ic_account"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />

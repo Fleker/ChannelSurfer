@@ -30,8 +30,8 @@
 
         <activity
             android:name=".SampleTvSetup"
-            android:exported="true"
             android:enabled="true"
+            android:exported="true"
             android:label="@string/title_activity_sample_tv_setup">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.Surface;
 import android.view.View;
 
+import com.felkertech.channelsurfer.R;
 import com.felkertech.channelsurfer.model.Channel;
 import com.felkertech.channelsurfer.model.Program;
 import com.felkertech.channelsurfer.sync.SyncAdapter;
@@ -307,6 +308,22 @@ public abstract class TvInputProvider extends TvInputService {
     }
 
     /**
+     * You can notify Live Channels that this content is allowed to be displayed within the
+     * confines of the parental controls
+     */
+    public void notifyVideoAllowed() {
+        simpleSession.notifyContentAllowed();
+    }
+
+    /**
+     * You can notify Live Channels that the content about to be played is disallowed due to
+     * parental settings and will not be displayed
+     */
+    public void notifyVideoBlocked() {
+//        simpleSession.notifyContentBlocked(getProgramRightNow());
+    }
+
+    /**
      * When your video is available, should an overlay be displayed on top of the stream
      * @param enable true if you want your overlay to be drawn on top
      */
@@ -325,5 +342,36 @@ public abstract class TvInputProvider extends TvInputService {
      */
     public void notifyVideoUnavailable(int reason) {
         simpleSession.notifyVideoUnavailable(reason);
+    }
+
+    /**
+     * You can change the dimensions of the layout surface by providing the overlay size in pixels.
+     * If none are provided, the default dimensions will be selected
+     * @return an integer array for the left, top, right, and bottom directions in pixels
+     */
+    public int[] getLayoutDimensions() {
+        return null;
+    }
+
+    /**
+     * Gets a valid Uri of a local video file
+     * @param resId The resource id of the video
+     * @return A Uri as a string
+     */
+    public String getLocalVideoUri(int resId) {
+        return Uri.parse("android.resource://" +getPackageName() + "/" + resId).toString();
+    }
+
+    /**
+     * An alias for the getLocalVideoUri method
+     * @param resId The resource id of the audio
+     * @return A Uri as a string
+     */
+    public String getLocalAudioUri(int resId) {
+        return getLocalVideoUri(resId);
+    }
+
+    public SimpleSessionImpl getSession() {
+        return simpleSession;
     }
 }

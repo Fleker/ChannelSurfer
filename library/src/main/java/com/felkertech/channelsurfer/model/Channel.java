@@ -7,6 +7,7 @@ public class Channel {
     private String name;
     private String logoUrl;
     private String internalProviderData;
+    private String description;
     private int originalNetworkId;
     private int transportStreamId;
     private int serviceId;
@@ -129,6 +130,15 @@ public class Channel {
 
     public Channel setInternalProviderData(String internalProviderData) {
         this.internalProviderData = internalProviderData;
+        return this;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public Channel setDescription(String description) {
+        this.description = description;
         return this;
     }
 
