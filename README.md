@@ -168,7 +168,7 @@ Rounding is nice. Many channels will organize programs into hour or half-hour se
 You can also pass any number of milliseconds and that time will be rounded down as well.
 
 #### Get local video uri
-If your stream is playing a video that already exists, you can use the method `getLocalVideoUri(int resId)` to get the Uri of this video as a string. There is an alias method `getLocalAudioUri(int resId)` which can be used for local audio files.
+If your stream is playing a video that already exists, you can use the method `getLocalVideoUri(int resId, String packageName)` to get the Uri of this video as a string. There is an alias method `getLocalAudioUri(int resId, String packageName)` which can be used for local audio files.
 
 ### WebViewInputProvider
 What if you could set any website as a Live Channel? There's any easy way to do that. Just extend the `WebViewInputProvider` class. It simplifies the methods that you need to override. 

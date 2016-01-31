@@ -1,5 +1,6 @@
 package com.felkertech.channelsurfer.service;
 
+import android.app.Service;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -32,7 +33,7 @@ import java.util.List;
 public abstract class TvInputProvider extends TvInputService {
     private static String TAG = "TvInputProvider";
     /** Default constructor **/
-    public TvInputProvider() {}
+    public TvInputProvider() { Log.d(TAG, "Created TvInputProvider"); }
 
     /**
      * Return a list of all the channels that you currently have created
@@ -358,8 +359,8 @@ public abstract class TvInputProvider extends TvInputService {
      * @param resId The resource id of the video
      * @return A Uri as a string
      */
-    public String getLocalVideoUri(int resId) {
-        return Uri.parse("android.resource://" +getPackageName() + "/" + resId).toString();
+    public String getLocalVideoUri(int resId, String c) {
+        return Uri.parse("android.resource://" +c + "/" + resId).toString();
     }
 
     /**
@@ -367,8 +368,8 @@ public abstract class TvInputProvider extends TvInputService {
      * @param resId The resource id of the audio
      * @return A Uri as a string
      */
-    public String getLocalAudioUri(int resId) {
-        return getLocalVideoUri(resId);
+    public String getLocalAudioUri(int resId, String c) {
+        return getLocalVideoUri(resId, c);
     }
 
     public SimpleSessionImpl getSession() {

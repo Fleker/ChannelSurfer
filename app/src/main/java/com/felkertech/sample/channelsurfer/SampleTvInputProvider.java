@@ -27,6 +27,7 @@ public class SampleTvInputProvider extends MultimediaInputProvider
 
     @Override
     public List<Channel> getAllChannels() {
+        Log.d(TAG, "Get all channels");
         List<Channel> channels = new ArrayList<>();
         channels.add(new Channel()
             .setName("Time.Is")
@@ -46,6 +47,7 @@ public class SampleTvInputProvider extends MultimediaInputProvider
 
     @Override
     public List<Program> getProgramsForChannel(Uri channelUri, Channel channelInfo, long startTimeMs, long endTimeMs) {
+        Log.d(TAG, "Get programs for channel "+channelInfo.getName());
         int programs = (int) ((endTimeMs-startTimeMs)/1000/60/60); //Hour long segments
         int SEGMENT = 1000*60*60; //Hour long segments
         List<Program> programList = new ArrayList<>();
@@ -74,7 +76,7 @@ public class SampleTvInputProvider extends MultimediaInputProvider
                 p = new Program.Builder(getGenericProgram(channelInfo))
                         .setTitle("Sample Video")
                         .setDescription("Visit http://androidtv.news, the one-stop shop for everything Android TV")
-                        .setInternalProviderData(getLocalVideoUri(R.raw.androidtvnews))
+                        .setInternalProviderData(getLocalVideoUri(R.raw.androidtvnews, "com.felkertech.sample.channelsurfer")) //b/c getPackageName is broken
                         .setVideoWidth(1600)
                         .setVideoHeight(900)
                         .setStartTimeUtcMillis((getNearestHour() + SEGMENT * i))
@@ -84,7 +86,7 @@ public class SampleTvInputProvider extends MultimediaInputProvider
                 p = new Program.Builder(getGenericProgram(channelInfo))
                         .setTitle("Ectasy")
                         .setDescription("An example of building a music-based app, with local (or online) music. Ectasy is a song from PurplePlanet.")
-                        .setInternalProviderData(getLocalAudioUri(R.raw.ectasy))
+                        .setInternalProviderData(getLocalAudioUri(R.raw.ectasy, "com.felkertech.sample.channelsurfer"))
                         .setVideoWidth(1920)
                         .setVideoHeight(1080)
                         .setStartTimeUtcMillis((getNearestHour() + SEGMENT * i))
@@ -162,6 +164,10 @@ public class SampleTvInputProvider extends MultimediaInputProvider
 
     @Override
     public long mediaGetStartMs() {
+        if(lastTune == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            return TvInputManager.TIME_SHIFT_INVALID_TIME;
+        else if(lastTune == null)
+            return -1;
         return lastTune.getTime();
     }
 
