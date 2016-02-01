@@ -4,6 +4,8 @@ import android.media.PlaybackParams;
 import android.media.tv.TvInputManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -35,12 +37,12 @@ public class SampleTvInputProvider extends MultimediaInputProvider
         channels.add(new Channel()
             .setName("Big Buck Bunny")
             .setNumber("2"));
-        channels.add(new Channel()
+        /*channels.add(new Channel()
             .setName("AndroidTV.news")
             .setNumber("3"));
         channels.add(new Channel()
             .setName("Dance Party")
-            .setNumber("4"));
+            .setNumber("4"));*/
         Log.d(TAG, "Get channels");
         return channels;
     }
@@ -66,7 +68,7 @@ public class SampleTvInputProvider extends MultimediaInputProvider
             } else if(channelInfo.getNumber().equals("2")) {
                 p = new Program.Builder(getGenericProgram(channelInfo))
                         .setTitle("Big Buck Bunny")
-                        .setInternalProviderData("http://www.nacentapps.com/m3u8/index.m3u8")
+                        .setInternalProviderData("http://184.72.239.149/vod/smil:BigBuckBunny.smil/playlist.m3u8")
                         .setVideoWidth(1920)
                         .setVideoHeight(1080)
                         .setStartTimeUtcMillis((getNearestHour() + SEGMENT * i))
@@ -76,7 +78,7 @@ public class SampleTvInputProvider extends MultimediaInputProvider
                 p = new Program.Builder(getGenericProgram(channelInfo))
                         .setTitle("Sample Video")
                         .setDescription("Visit http://androidtv.news, the one-stop shop for everything Android TV")
-                        .setInternalProviderData(getLocalVideoUri(R.raw.androidtvnews, "com.felkertech.sample.channelsurfer")) //b/c getPackageName is broken
+                        .setInternalProviderData(getLocalVideoUri("androidtvnews.mp4", SampleTvInputProvider.this)) //b/c getPackageName is broken
                         .setVideoWidth(1600)
                         .setVideoHeight(900)
                         .setStartTimeUtcMillis((getNearestHour() + SEGMENT * i))
@@ -86,7 +88,7 @@ public class SampleTvInputProvider extends MultimediaInputProvider
                 p = new Program.Builder(getGenericProgram(channelInfo))
                         .setTitle("Ectasy")
                         .setDescription("An example of building a music-based app, with local (or online) music. Ectasy is a song from PurplePlanet.")
-                        .setInternalProviderData(getLocalAudioUri(R.raw.ectasy, "com.felkertech.sample.channelsurfer"))
+                        .setInternalProviderData(getLocalAudioUri("ectasy.mp3", SampleTvInputProvider.this))
                         .setVideoWidth(1920)
                         .setVideoHeight(1080)
                         .setStartTimeUtcMillis((getNearestHour() + SEGMENT * i))
@@ -111,7 +113,7 @@ public class SampleTvInputProvider extends MultimediaInputProvider
         //Only my local channels will have the ability to be time shifted, so I should update that every tuning.
         //Timeshifting only works for API >= 23
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (!isLocal()) {
+            if (isLocal()) {
                 getSession().notifyTimeShiftStatusChanged(TvInputManager.TIME_SHIFT_STATUS_AVAILABLE);
             } else {
                 //If it's not a local channel, I cannot pause or seek in the program
@@ -120,6 +122,16 @@ public class SampleTvInputProvider extends MultimediaInputProvider
         }
 
         play(getProgramRightNow(channel).getInternalProviderData());
+        if(currentChannel.getNumber().equals("4")) {
+            Handler h = new Handler() {
+                @Override
+                public void handleMessage(Message msg) {
+                    super.handleMessage(msg);
+                    setOverlayEnabled(true);
+                }
+            };
+            h.sendEmptyMessageDelayed(0, 16);
+        }
         return true;
     }
 
@@ -138,7 +150,7 @@ public class SampleTvInputProvider extends MultimediaInputProvider
     }
 
     public boolean isLocal() {
-        return currentChannel != null && currentChannel.getNumber().equals("3") || currentChannel.getNumber().equals("4");
+        return currentChannel != null && (currentChannel.getNumber().equals("3") || currentChannel.getNumber().equals("4"));
     }
 
     @Override

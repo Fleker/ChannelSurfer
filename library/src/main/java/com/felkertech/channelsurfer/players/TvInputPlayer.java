@@ -176,6 +176,14 @@ public class TvInputPlayer implements TextRenderer {
         });
     }
 
+    public void prepare(TrackRenderer audioRenderer, TrackRenderer videoRenderer, TrackRenderer textRenderer) {
+        this.audioRenderer = audioRenderer;
+        this.videoRenderer = videoRenderer;
+        this.textRenderer = textRenderer;
+        Log.d(TAG, "Prepare internal from local file");
+        prepareInternal();
+//        mPlayer.prepare(audioRenderer, videoRenderer, textRenderer);
+    }
     public void prepare(final Context context, final Uri originalUri, int sourceType) {
         final String userAgent = getUserAgent(context);
         final DefaultHttpDataSource dataSource = new DefaultHttpDataSource(userAgent, null);
@@ -486,15 +494,20 @@ public class TvInputPlayer implements TextRenderer {
     }
 
     private void prepareInternal() {
+        prepareInternal(false);
+    }
+    private void prepareInternal(boolean usingLocalMedia) {
         Log.d(TAG, "Prepare internal");
         try {
-            mPlayer.prepare(audioRenderer, videoRenderer, textRenderer);
-            mPlayer.sendMessage(audioRenderer, MediaCodecAudioTrackRenderer.MSG_SET_VOLUME,
-                    mVolume);
-            mPlayer.sendMessage(videoRenderer, MediaCodecVideoTrackRenderer.MSG_SET_SURFACE,
-                    mSurface);
-            // Disable text track by default.
-            mPlayer.setRendererEnabled(TvTrackInfo.TYPE_SUBTITLE, false);
+//            if(!usingLocalMedia) {
+                mPlayer.prepare(audioRenderer, videoRenderer, textRenderer);
+                mPlayer.sendMessage(audioRenderer, MediaCodecAudioTrackRenderer.MSG_SET_VOLUME,
+                        mVolume);
+                mPlayer.sendMessage(videoRenderer, MediaCodecVideoTrackRenderer.MSG_SET_SURFACE,
+                        mSurface);
+                // Disable text track by default.
+                mPlayer.setRendererEnabled(TvTrackInfo.TYPE_SUBTITLE, false);
+//            }
             for (Callback callback : mCallbacks) {
                 callback.onPrepared();
             }

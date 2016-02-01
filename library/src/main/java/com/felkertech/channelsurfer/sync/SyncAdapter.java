@@ -98,7 +98,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         Log.d(TAG, "onPerformSync(" + account + ", " + authority + ", " + extras + ")");
         final String inputId = extras.getString(SyncAdapter.BUNDLE_KEY_INPUT_ID);
         if (inputId == null) {
-            Log.e(TAG, "Need a valid input id");
+            Log.e(TAG, "Should have a valid input id");
             return;
         }
         //REFRESH CHANNEL DATA FROM SERVICE

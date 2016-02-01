@@ -8,6 +8,13 @@ import android.view.View;
 import com.felkertech.channelsurfer.players.TvInputPlayer;
 import com.felkertech.channelsurfer.players.WebInputPlayer;
 import com.google.android.exoplayer.ExoPlaybackException;
+import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
+import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
+import com.google.android.exoplayer.TrackRenderer;
+import com.google.android.exoplayer.extractor.ExtractorSampleSource;
+import com.google.android.exoplayer.upstream.AssetDataSource;
+import com.google.android.exoplayer.upstream.DataSource;
+import com.google.android.exoplayer.upstream.DefaultAllocator;
 
 /**
  * This is a combination of a video and web input provider. Playing a URL will try to play
@@ -117,10 +124,20 @@ public abstract class MultimediaInputProvider extends ExoPlayerInputProvider {
         }
         exoPlayer.addCallback(callback);
         exoPlayer.setSurface(mSurface);
-        try {
-            exoPlayer.prepare(getApplicationContext(), Uri.parse(uri), TvInputPlayer.SOURCE_TYPE_HLS);
-        } catch (Exception e) {
-            e.printStackTrace();
+        Log.d(TAG, "Play "+uri+"; "+uri.indexOf("asset:///"));
+        if(uri.contains("asset:///") && false) {
+            Log.i(TAG, "Is a local file");
+            DataSource dataSource=new AssetDataSource(getApplicationContext());
+            ExtractorSampleSource extractorSampleSource=new ExtractorSampleSource(Uri.parse(uri),dataSource,new DefaultAllocator(1000),5000);
+            TrackRenderer audio=new MediaCodecAudioTrackRenderer(extractorSampleSource,null,true);
+            TrackRenderer video=new MediaCodecVideoTrackRenderer(getApplicationContext(),extractorSampleSource,1);
+            exoPlayer.prepare(audio, video, null);
+        } else {
+            try {
+                exoPlayer.prepare(getApplicationContext(), Uri.parse(uri), TvInputPlayer.SOURCE_TYPE_HLS);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         exoPlayer.setPlayWhenReady(true);
     }

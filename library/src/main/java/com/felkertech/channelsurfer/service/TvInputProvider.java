@@ -6,6 +6,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.media.tv.TvContentRating;
 import android.media.tv.TvContract;
@@ -23,6 +24,11 @@ import com.felkertech.channelsurfer.model.Channel;
 import com.felkertech.channelsurfer.model.Program;
 import com.felkertech.channelsurfer.sync.SyncAdapter;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -239,10 +245,10 @@ public abstract class TvInputProvider extends TvInputService {
                         for(Program p: programs) {
                             if(p.getStartTimeUtcMillis() < new Date().getTime()) {
                                 currentProgram = p;
-                                Log.d(TAG, p.toString());
+                                //Log.d(TAG, p.toString());
                             }
                         }
-                        Log.d(TAG, "OK");
+                        //Log.d(TAG, "OK");
                         return currentProgram;
                     }
                 }
@@ -356,20 +362,57 @@ public abstract class TvInputProvider extends TvInputService {
 
     /**
      * Gets a valid Uri of a local video file
-     * @param resId The resource id of the video
+     * @param assetname The resource id of the video
      * @return A Uri as a string
      */
-    public String getLocalVideoUri(int resId, String c) {
-        return Uri.parse("android.resource://" +c + "/" + resId).toString();
+    public String getLocalVideoUri(String assetname, Context context) {
+        try {
+            File f = getFileFromAssets(assetname,  context);
+            Log.d(TAG, f.toString());
+            return f.getAbsolutePath();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "android.resource//com.felkertech.sample.channelsurfer/raw/"+assetname;
+//        return "asset:///"+assetname;
+    }
+    private File getFileFromAssets(String assetname, Context c) throws IOException {
+        Log.d(TAG, "Has context "+c.toString());
+        AssetManager am = c.getAssets();
+        InputStream inputStream = am.open(assetname);
+        File file = createFileFromInputStream(inputStream, assetname);
+        return file;
+    }
+    private File createFileFromInputStream(InputStream inputStream, String filename) {
+
+        try{
+            File f = new File(filename);
+            OutputStream outputStream = new FileOutputStream(f);
+            byte buffer[] = new byte[1024];
+            int length = 0;
+
+            while((length=inputStream.read(buffer)) > 0) {
+                outputStream.write(buffer,0,length);
+            }
+
+            outputStream.close();
+            inputStream.close();
+
+            return f;
+        }catch (IOException e) {
+            //Logging exception
+        }
+
+        return null;
     }
 
     /**
      * An alias for the getLocalVideoUri method
-     * @param resId The resource id of the audio
+     * @param assetname The resource id of the audio
      * @return A Uri as a string
      */
-    public String getLocalAudioUri(int resId, String c) {
-        return getLocalVideoUri(resId, c);
+    public String getLocalAudioUri(String assetname, Context c) {
+        return getLocalVideoUri(assetname, c);
     }
 
     public SimpleSessionImpl getSession() {
