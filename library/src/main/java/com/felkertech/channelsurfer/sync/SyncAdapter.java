@@ -95,7 +95,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     public void doLocalSync() {
-        Log.d(TAG, "onPerformSync(" + account + ", " + authority + ", " + extras + ")");
+        Log.d(TAG, "onPerformSync(" + account + ", " + authority + ", " + extras.toString() + ")");
         final String inputId = extras.getString(SyncAdapter.BUNDLE_KEY_INPUT_ID);
         if (inputId == null) {
             Log.e(TAG, "Should have a valid input id");

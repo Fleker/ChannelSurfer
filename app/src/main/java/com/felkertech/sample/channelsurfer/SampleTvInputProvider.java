@@ -9,6 +9,7 @@ import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.felkertech.channelsurfer.TimeShiftable;
 import com.felkertech.channelsurfer.model.Channel;
@@ -30,6 +31,7 @@ public class SampleTvInputProvider extends MultimediaInputProvider
     @Override
     public List<Channel> getAllChannels() {
         Log.d(TAG, "Get all channels");
+//        Toast.makeText(SampleTvInputProvider.this, "Get all channels", Toast.LENGTH_SHORT).show();
         List<Channel> channels = new ArrayList<>();
         channels.add(new Channel()
             .setName("Time.Is")
@@ -37,12 +39,12 @@ public class SampleTvInputProvider extends MultimediaInputProvider
         channels.add(new Channel()
             .setName("Big Buck Bunny")
             .setNumber("2"));
-        /*channels.add(new Channel()
-            .setName("AndroidTV.news")
+        channels.add(new Channel()
+            .setName("androidtv.news")
             .setNumber("3"));
         channels.add(new Channel()
             .setName("Dance Party")
-            .setNumber("4"));*/
+            .setNumber("4"));
         Log.d(TAG, "Get channels");
         return channels;
     }
@@ -50,6 +52,7 @@ public class SampleTvInputProvider extends MultimediaInputProvider
     @Override
     public List<Program> getProgramsForChannel(Uri channelUri, Channel channelInfo, long startTimeMs, long endTimeMs) {
         Log.d(TAG, "Get programs for channel "+channelInfo.getName());
+//        Toast.makeText(SampleTvInputProvider.this, "Get all programs for "+channelInfo.getName(), Toast.LENGTH_SHORT).show();
         int programs = (int) ((endTimeMs-startTimeMs)/1000/60/60); //Hour long segments
         int SEGMENT = 1000*60*60; //Hour long segments
         List<Program> programList = new ArrayList<>();
@@ -78,7 +81,7 @@ public class SampleTvInputProvider extends MultimediaInputProvider
                 p = new Program.Builder(getGenericProgram(channelInfo))
                         .setTitle("Sample Video")
                         .setDescription("Visit http://androidtv.news, the one-stop shop for everything Android TV")
-                        .setInternalProviderData(getLocalVideoUri("androidtvnews.mp4", SampleTvInputProvider.this)) //b/c getPackageName is broken
+                        .setInternalProviderData(SampleTvSetup.LOCAL_FILES_FOLDER+"/androidtvnews.mp4") //b/c getPackageName is broken
                         .setVideoWidth(1600)
                         .setVideoHeight(900)
                         .setStartTimeUtcMillis((getNearestHour() + SEGMENT * i))
@@ -88,7 +91,7 @@ public class SampleTvInputProvider extends MultimediaInputProvider
                 p = new Program.Builder(getGenericProgram(channelInfo))
                         .setTitle("Ectasy")
                         .setDescription("An example of building a music-based app, with local (or online) music. Ectasy is a song from PurplePlanet.")
-                        .setInternalProviderData(getLocalAudioUri("ectasy.mp3", SampleTvInputProvider.this))
+                        .setInternalProviderData(SampleTvSetup.LOCAL_FILES_FOLDER+"/ectasy.mp3")
                         .setVideoWidth(1920)
                         .setVideoHeight(1080)
                         .setStartTimeUtcMillis((getNearestHour() + SEGMENT * i))
@@ -106,6 +109,7 @@ public class SampleTvInputProvider extends MultimediaInputProvider
     public boolean onTune(Channel channel) {
         this.currentChannel = channel;
         this.lastTune = new Date();
+        Toast.makeText(SampleTvInputProvider.this, "Tuning to "+channel.getName()+" with program "+getProgramRightNow(channel).getTitle()+" at "+getProgramRightNow(channel).getInternalProviderData(), Toast.LENGTH_SHORT).show();
         Log.d(TAG, "Tuning to " + channel.getName());
         Log.d(TAG, "Playing "+getProgramRightNow(channel).getTitle());
         Log.d(TAG, "Play the video "+getProgramRightNow(channel).getInternalProviderData());
@@ -137,6 +141,7 @@ public class SampleTvInputProvider extends MultimediaInputProvider
 
     @Override
     public View onCreateVideoView() {
+        Log.d(TAG, "Create video view");
         if(currentChannel != null && currentChannel.getNumber().equals("4")) {
             TextView tv = new TextView(this);
             tv.setText("We're playing some music! ♫ ♬");

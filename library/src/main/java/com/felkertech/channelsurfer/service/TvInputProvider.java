@@ -365,7 +365,7 @@ public abstract class TvInputProvider extends TvInputService {
      * @param assetname The resource id of the video
      * @return A Uri as a string
      */
-    public String getLocalVideoUri(String assetname, Context context) {
+/*    public String getLocalVideoUri(String assetname, Context context) {
         try {
             File f = getFileFromAssets(assetname,  context);
             Log.d(TAG, f.toString());
@@ -375,45 +375,15 @@ public abstract class TvInputProvider extends TvInputService {
         }
         return "android.resource//com.felkertech.sample.channelsurfer/raw/"+assetname;
 //        return "asset:///"+assetname;
-    }
-    private File getFileFromAssets(String assetname, Context c) throws IOException {
-        Log.d(TAG, "Has context "+c.toString());
-        AssetManager am = c.getAssets();
-        InputStream inputStream = am.open(assetname);
-        File file = createFileFromInputStream(inputStream, assetname);
-        return file;
-    }
-    private File createFileFromInputStream(InputStream inputStream, String filename) {
-
-        try{
-            File f = new File(filename);
-            OutputStream outputStream = new FileOutputStream(f);
-            byte buffer[] = new byte[1024];
-            int length = 0;
-
-            while((length=inputStream.read(buffer)) > 0) {
-                outputStream.write(buffer,0,length);
-            }
-
-            outputStream.close();
-            inputStream.close();
-
-            return f;
-        }catch (IOException e) {
-            //Logging exception
-        }
-
-        return null;
-    }
-
+    }*/
     /**
      * An alias for the getLocalVideoUri method
      * @param assetname The resource id of the audio
      * @return A Uri as a string
      */
-    public String getLocalAudioUri(String assetname, Context c) {
+/*    public String getLocalAudioUri(String assetname, Context c) {
         return getLocalVideoUri(assetname, c);
-    }
+    }*/
 
     public SimpleSessionImpl getSession() {
         return simpleSession;
