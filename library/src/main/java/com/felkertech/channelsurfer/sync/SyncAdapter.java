@@ -89,16 +89,16 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         this.provider = provider;
         this.syncResult = syncResult;
 
-        Log.d(TAG, "Opened SyncAdapter");
+//        Log.d(TAG, "Opened SyncAdapter");
 
         doLocalSync();
     }
 
     public void doLocalSync() {
-        Log.d(TAG, "onPerformSync(" + account + ", " + authority + ", " + extras.toString() + ")");
+//        Log.d(TAG, "onPerformSync(" + account + ", " + authority + ", " + extras.toString() + ")");
         final String inputId = extras.getString(SyncAdapter.BUNDLE_KEY_INPUT_ID);
         if (inputId == null) {
-            Log.e(TAG, "Should have a valid input id");
+//            Log.e(TAG, "Should have a valid input id");
             return;
         }
         //REFRESH CHANNEL DATA FROM SERVICE

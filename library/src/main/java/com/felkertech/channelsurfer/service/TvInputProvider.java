@@ -365,25 +365,23 @@ public abstract class TvInputProvider extends TvInputService {
      * @param assetname The resource id of the video
      * @return A Uri as a string
      */
-/*    public String getLocalVideoUri(String assetname, Context context) {
-        try {
-            File f = getFileFromAssets(assetname,  context);
-            Log.d(TAG, f.toString());
-            return f.getAbsolutePath();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return "android.resource//com.felkertech.sample.channelsurfer/raw/"+assetname;
+    public String getLocalVideoUri(String assetname) {
+        File f = new File(assetname);
+        Log.d(TAG, "Video path "+f.getAbsolutePath());
+        String uri = Uri.fromFile(f).toString();
+        Log.d(TAG, "Uri "+uri);
+        return uri;
+//        return "file:/"+assetname;
 //        return "asset:///"+assetname;
-    }*/
+    }
     /**
      * An alias for the getLocalVideoUri method
      * @param assetname The resource id of the audio
      * @return A Uri as a string
      */
-/*    public String getLocalAudioUri(String assetname, Context c) {
-        return getLocalVideoUri(assetname, c);
-    }*/
+    public String getLocalAudioUri(String assetname) {
+        return getLocalVideoUri(assetname);
+    }
 
     public SimpleSessionImpl getSession() {
         return simpleSession;

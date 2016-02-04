@@ -81,7 +81,7 @@ public class SampleTvInputProvider extends MultimediaInputProvider
                 p = new Program.Builder(getGenericProgram(channelInfo))
                         .setTitle("Sample Video")
                         .setDescription("Visit http://androidtv.news, the one-stop shop for everything Android TV")
-                        .setInternalProviderData(SampleTvSetup.LOCAL_FILES_FOLDER+"/androidtvnews.mp4") //b/c getPackageName is broken
+                        .setInternalProviderData(getLocalVideoUri(SampleTvSetup.LOCAL_FILES_FOLDER+"/atnews.mp4")) //b/c getPackageName is broken
                         .setVideoWidth(1600)
                         .setVideoHeight(900)
                         .setStartTimeUtcMillis((getNearestHour() + SEGMENT * i))
@@ -91,7 +91,7 @@ public class SampleTvInputProvider extends MultimediaInputProvider
                 p = new Program.Builder(getGenericProgram(channelInfo))
                         .setTitle("Ectasy")
                         .setDescription("An example of building a music-based app, with local (or online) music. Ectasy is a song from PurplePlanet.")
-                        .setInternalProviderData(SampleTvSetup.LOCAL_FILES_FOLDER+"/ectasy.mp3")
+                        .setInternalProviderData(getLocalAudioUri(SampleTvSetup.LOCAL_FILES_FOLDER+"/ectasy.mp3"))
                         .setVideoWidth(1920)
                         .setVideoHeight(1080)
                         .setStartTimeUtcMillis((getNearestHour() + SEGMENT * i))

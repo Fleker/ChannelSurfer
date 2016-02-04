@@ -1,5 +1,6 @@
 package com.felkertech.channelsurfer.service;
 
+import android.media.MediaCodec;
 import android.net.Uri;
 import android.util.Log;
 import android.view.Surface;
@@ -7,14 +8,20 @@ import android.view.View;
 
 import com.felkertech.channelsurfer.players.TvInputPlayer;
 import com.felkertech.channelsurfer.players.WebInputPlayer;
+import com.google.android.exoplayer.DummyTrackRenderer;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
+import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
+import com.google.android.exoplayer.extractor.mp3.Mp3Extractor;
+import com.google.android.exoplayer.extractor.mp4.Mp4Extractor;
+import com.google.android.exoplayer.text.TextTrackRenderer;
 import com.google.android.exoplayer.upstream.AssetDataSource;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
+import com.google.android.exoplayer.upstream.DefaultUriDataSource;
 
 /**
  * This is a combination of a video and web input provider. Playing a URL will try to play
@@ -124,14 +131,18 @@ public abstract class MultimediaInputProvider extends ExoPlayerInputProvider {
         }
         exoPlayer.addCallback(callback);
         exoPlayer.setSurface(mSurface);
-        Log.d(TAG, "Play "+uri+"; "+uri.indexOf("asset:///"));
-        if(uri.contains("asset:///") && false) {
+        Log.d(TAG, "Play "+uri+"; "+uri.indexOf("file:///"));
+        if(uri.contains("file:///")) {
             Log.i(TAG, "Is a local file");
-            DataSource dataSource=new AssetDataSource(getApplicationContext());
-            ExtractorSampleSource extractorSampleSource=new ExtractorSampleSource(Uri.parse(uri),dataSource,new DefaultAllocator(1000),5000);
-            TrackRenderer audio=new MediaCodecAudioTrackRenderer(extractorSampleSource,null,true);
-            TrackRenderer video=new MediaCodecVideoTrackRenderer(getApplicationContext(),extractorSampleSource,1);
-            exoPlayer.prepare(audio, video, null);
+            //Find appropriate extractor
+
+            DataSource dataSource=new DefaultUriDataSource(getApplicationContext(), TvInputPlayer.getUserAgent(getApplicationContext()));
+            ExtractorSampleSource extractorSampleSource=new ExtractorSampleSource(Uri.parse(uri),dataSource,
+                    new DefaultAllocator(TvInputPlayer.BUFFER_SEGMENT_SIZE), TvInputPlayer.BUFFER_SEGMENTS * TvInputPlayer.BUFFER_SEGMENT_SIZE,
+                    new Mp4Extractor(), new Mp3Extractor());
+            TrackRenderer audio=new MediaCodecAudioTrackRenderer(extractorSampleSource);
+            TrackRenderer video=new MediaCodecVideoTrackRenderer(getApplicationContext(),extractorSampleSource, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
+            exoPlayer.prepare(audio, video, new DummyTrackRenderer());
         } else {
             try {
                 exoPlayer.prepare(getApplicationContext(), Uri.parse(uri), TvInputPlayer.SOURCE_TYPE_HLS);

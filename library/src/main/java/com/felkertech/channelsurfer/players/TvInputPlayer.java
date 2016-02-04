@@ -79,8 +79,8 @@ public class TvInputPlayer implements TextRenderer {
     private static final int MIN_BUFFER_MS = 1000;
     private static final int MIN_REBUFFER_MS = 5000;
 
-    private int BUFFER_SEGMENT_SIZE = 256 * 1024 * 4;
-    private int BUFFER_SEGMENTS = 64 * 2;
+    public static int BUFFER_SEGMENT_SIZE = 256 * 1024 * 2;
+    public static int BUFFER_SEGMENTS = 64 * 1;
 
 
     private static final int VIDEO_BUFFER_SEGMENTS = 200;

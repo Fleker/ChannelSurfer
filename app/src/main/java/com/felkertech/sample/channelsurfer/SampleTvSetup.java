@@ -20,13 +20,13 @@ public class SampleTvSetup extends SimpleTvSetup {
 //        toPath = "/data/data/" + getPackageName();  // Your application path
         //We need to override this in order to save our assets to a real file, making them
         //playable in ExoPlayer
-        copyAsset(getAssets(), "androidtvnews.mp4", "androidtvnews.mp4");
+        copyAsset(getAssets(), "atnews.mp4", "androidtvnews.mp4");
         copyAsset(getAssets(), "ectasy.mp3", "ectasy.mp3");
         File channelsurferFolder = new File(LOCAL_FILES_FOLDER);
         channelsurferFolder.mkdir();
         super.setupTvInputProvider();
     }
-    static String LOCAL_FILES_FOLDER = Environment.getExternalStorageDirectory().getAbsolutePath()+"/channelsurfer";
+    public static String LOCAL_FILES_FOLDER = Environment.getExternalStorageDirectory().getAbsolutePath()+"/channelsurfer";
 
 
     private static boolean copyAssetFolder(AssetManager assetManager,
