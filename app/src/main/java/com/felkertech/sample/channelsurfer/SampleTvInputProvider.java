@@ -81,7 +81,7 @@ public class SampleTvInputProvider extends MultimediaInputProvider
                 p = new Program.Builder(getGenericProgram(channelInfo))
                         .setTitle("Sample Video")
                         .setDescription("Visit http://androidtv.news, the one-stop shop for everything Android TV")
-                        .setInternalProviderData(getLocalVideoUri(SampleTvSetup.LOCAL_FILES_FOLDER+"/atnews.mp4")) //b/c getPackageName is broken
+                        .setInternalProviderData(getLocalVideoUri(SampleTvSetup.LOCAL_FILES_FOLDER+"/androidtvnews.mp4")) //b/c getPackageName is broken
                         .setVideoWidth(1600)
                         .setVideoHeight(900)
                         .setStartTimeUtcMillis((getNearestHour() + SEGMENT * i))
