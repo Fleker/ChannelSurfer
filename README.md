@@ -13,7 +13,9 @@ ChannelSurfer takes care of all these headaches. You can simply use a single cla
 ## Release Notes
 ### 0.2.3
 * Should now work correctly with restricted profiles
-* Can change the account drawable by including `@drawable/ic_account`
+* Can change the account icon by including `@drawable/ic_account`
+* Check the section on using the `TimeShiftable` interface to display playback controls
+* Sample app shows how to play from a variety of sources: website, HLS stream, local video, local audio with overlay
 
 ### 0.2.1
 * Imports and uses the `ExoPlayer` library in most of its `TvInputProvider` classes
