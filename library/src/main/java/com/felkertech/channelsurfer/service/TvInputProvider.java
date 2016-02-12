@@ -183,6 +183,17 @@ public abstract class TvInputProvider extends TvInputService {
         return programs;
     }
 
+    protected static TvContentRating RATING_PG = TvContentRating.createRating(
+            "com.android.tv",
+            "US_TV",
+            "US_TV_PG",
+            "US_TV_D", "US_TV_L");
+    protected static TvContentRating RATING_MA = TvContentRating.createRating(
+            "com.android.tv",
+            "US_TV",
+            "US_TV_MA",
+            "US_TV_V", "US_TV_S");
+
     /**
      * If you don't have access to an EPG or don't want to supply programs, you can simply
      * add several instances of this generic program object.
@@ -192,11 +203,7 @@ public abstract class TvInputProvider extends TvInputService {
      * @return A very generic program object
      */
     public Program getGenericProgram(Channel channel) {
-        TvContentRating rating = TvContentRating.createRating(
-                "com.android.tv",
-                "US_TV",
-                "US_TV_PG",
-                "US_TV_D", "US_TV_L");
+        TvContentRating rating = RATING_PG;
         return new Program.Builder()
                 .setTitle(channel.getName() + " Live")
                 .setProgramId(channel.getServiceId())
@@ -215,6 +222,12 @@ public abstract class TvInputProvider extends TvInputService {
                 .build();
     }
 
+    /**
+     * Queries the channel list to find the given channel and then queries the EPG (electronic
+     * programming guide) to find the program that is playing right now.
+     * @param channel The channel you are tuned to
+     * @return The current program on provided channel
+     */
     public Program getProgramRightNow(Channel channel) {
         ApplicationInfo app = null;
         try {

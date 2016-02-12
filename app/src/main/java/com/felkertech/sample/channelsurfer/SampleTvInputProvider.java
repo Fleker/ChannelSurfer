@@ -1,10 +1,13 @@
 package com.felkertech.sample.channelsurfer;
 
+import android.content.Intent;
 import android.media.PlaybackParams;
+import android.media.tv.TvContentRating;
 import android.media.tv.TvInputManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
@@ -27,6 +30,31 @@ import java.util.List;
 public class SampleTvInputProvider extends MultimediaInputProvider
         implements TimeShiftable {
     private String TAG = "SampleTvInputProvider";
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Toast.makeText(SampleTvInputProvider.this, "onCreate called", Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "onCreate called");
+    }
+    @Override
+    public void onRebind(Intent i) {
+        super.onRebind(i);
+        Toast.makeText(SampleTvInputProvider.this, "onRebind called", Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "onRebind called");
+    }
+    @Override
+    public void onRelease() {
+        super.onRelease();
+        Toast.makeText(SampleTvInputProvider.this, "onRelease called", Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "onRelease called");
+    }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Toast.makeText(SampleTvInputProvider.this, "onDestroy called", Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "onDestroy called");
+    }
 
     @Override
     public List<Channel> getAllChannels() {
@@ -63,6 +91,7 @@ public class SampleTvInputProvider extends MultimediaInputProvider
                 p = new Program.Builder(getGenericProgram(channelInfo))
                         .setTitle("What Time is It?")
                         .setInternalProviderData("http://time.is")
+                        .setContentRatings(new TvContentRating[]{RATING_MA})
                         .setVideoWidth(1920)
                         .setVideoHeight(1080)
                         .setStartTimeUtcMillis((getNearestHour() + SEGMENT * i))
@@ -141,6 +170,7 @@ public class SampleTvInputProvider extends MultimediaInputProvider
 
     @Override
     public View onCreateVideoView() {
+        Toast.makeText(SampleTvInputProvider.this, "onCreateVideoView", Toast.LENGTH_SHORT).show();
         Log.d(TAG, "Create video view");
         if(currentChannel != null && currentChannel.getNumber().equals("4")) {
             TextView tv = new TextView(this);

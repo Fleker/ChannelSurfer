@@ -23,7 +23,6 @@ import android.content.ContentProviderOperation;
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.content.SyncResult;
-import android.database.Cursor;
 import android.media.tv.TvContract;
 import android.net.Uri;
 import android.os.Bundle;
@@ -35,7 +34,7 @@ import android.util.Log;
 import android.util.LongSparseArray;
 import android.widget.Toast;
 
-import com.felkertech.channelsurfer.LibraryUtils;
+import com.felkertech.channelsurfer.utils.LiveChannelsUtils;
 import com.felkertech.channelsurfer.TvContractUtils;
 import com.felkertech.channelsurfer.model.Channel;
 import com.felkertech.channelsurfer.model.Program;
@@ -103,7 +102,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         }
         //REFRESH CHANNEL DATA FROM SERVICE
 
-        LibraryUtils.getTvInputProvider(mContext, new LibraryUtils.TvInputProviderCallback() {
+        LiveChannelsUtils.getTvInputProvider(mContext, new LiveChannelsUtils.TvInputProviderCallback() {
             @Override
             public void onTvInputProviderCallback(TvInputProvider provider) {
                 performCustomSync(provider, inputId);

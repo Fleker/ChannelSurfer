@@ -1,27 +1,38 @@
-package com.felkertech.channelsurfer;
+package com.felkertech.channelsurfer.utils;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.felkertech.channelsurfer.R;
 import com.felkertech.channelsurfer.service.TvInputProvider;
 
 import java.lang.reflect.InvocationTargetException;
 
 /**
- * Created by guest1 on 1/6/2016.
+ * Created by Nick on 2/7/2016.
  */
-@Deprecated
-public class LibraryUtils {
-    private static String TAG = "LibraryUtils";
+public class LiveChannelsUtils {
+    private static String TAG = "LiveUtils";
+    private static String ANDROID_TV_LIVE_CHANNELS = "com.google.android.tv";
+    public static Intent getLiveChannels(Activity mActivity) {
+        if(mActivity.getPackageManager().queryIntentActivities(new Intent(ANDROID_TV_LIVE_CHANNELS),0).size() > 0) {
+            Intent i = mActivity.getPackageManager().getLaunchIntentForPackage(ANDROID_TV_LIVE_CHANNELS);
+            return i;
+        }
+        return null;
+    }
     /**
      Returns the TvInputProvider that was defined by the project's manifest
      **/
-/*    public static TvInputProvider getTvInputProvider(Context mContext, final TvInputProviderCallback callback) {
+    public static TvInputProvider getTvInputProvider(Context mContext, final TvInputProviderCallback callback) {
         ApplicationInfo app = null;
         try {
             Log.d(TAG, mContext.getPackageName()+" >");
@@ -60,6 +71,5 @@ public class LibraryUtils {
 
     public interface TvInputProviderCallback {
         void onTvInputProviderCallback(TvInputProvider provider);
-    }*/
-
+    }
 }
