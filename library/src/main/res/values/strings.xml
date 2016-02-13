@@ -1,4 +1,5 @@
 <resources>
+    <string name="channel_surfer">ChannelSurfer</string>
     <string name="app_name">ChannelSurfer</string>
     <string name="tv_input_activity">com.felkertech.channelsurfer.setup.SimpleTvSetup</string>
 </resources>

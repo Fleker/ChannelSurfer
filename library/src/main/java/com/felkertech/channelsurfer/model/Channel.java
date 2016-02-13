@@ -14,6 +14,7 @@ public class Channel {
     private int videoWidth;
     private int videoHeight;
     private List<Program> programs;
+    private int channelId;
 
     public Channel() {}
     public Channel(String number, String name, String logoUrl, int originalNetworkId,
@@ -145,5 +146,14 @@ public class Channel {
     @Override
     public String toString() {
         return name+" ("+number+")";
+    }
+
+    public int getChannelId() {
+        return channelId;
+    }
+
+    public Channel setChannelId(int channelId) {
+        this.channelId = channelId;
+        return this;
     }
 }

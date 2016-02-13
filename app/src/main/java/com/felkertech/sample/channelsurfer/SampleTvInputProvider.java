@@ -138,10 +138,11 @@ public class SampleTvInputProvider extends MultimediaInputProvider
     public boolean onTune(Channel channel) {
         this.currentChannel = channel;
         this.lastTune = new Date();
-        Toast.makeText(SampleTvInputProvider.this, "Tuning to "+channel.getName()+" with program "+getProgramRightNow(channel).getTitle()+" at "+getProgramRightNow(channel).getInternalProviderData(), Toast.LENGTH_SHORT).show();
+        Program p = getProgramRightNow(channel);
+        Toast.makeText(SampleTvInputProvider.this, "Tuning to "+channel.getName()+" with program "+p.getTitle()+" at "+p.getInternalProviderData(), Toast.LENGTH_SHORT).show();
         Log.d(TAG, "Tuning to " + channel.getName());
-        Log.d(TAG, "Playing "+getProgramRightNow(channel).getTitle());
-        Log.d(TAG, "Play the video "+getProgramRightNow(channel).getInternalProviderData());
+        Log.d(TAG, "Playing "+p.getTitle());
+        Log.d(TAG, "Play the video "+p.getInternalProviderData());
 
         //Only my local channels will have the ability to be time shifted, so I should update that every tuning.
         //Timeshifting only works for API >= 23

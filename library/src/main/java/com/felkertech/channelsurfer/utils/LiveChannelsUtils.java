@@ -23,11 +23,20 @@ public class LiveChannelsUtils {
     private static String TAG = "LiveUtils";
     private static String ANDROID_TV_LIVE_CHANNELS = "com.google.android.tv";
     public static Intent getLiveChannels(Activity mActivity) {
-        if(mActivity.getPackageManager().queryIntentActivities(new Intent(ANDROID_TV_LIVE_CHANNELS),0).size() > 0) {
+        if(isPackageInstalled(ANDROID_TV_LIVE_CHANNELS, mActivity)) {
             Intent i = mActivity.getPackageManager().getLaunchIntentForPackage(ANDROID_TV_LIVE_CHANNELS);
             return i;
         }
         return null;
+    }
+    private static boolean isPackageInstalled(String packagename, Context context) {
+        PackageManager pm = context.getPackageManager();
+        try {
+            pm.getPackageInfo(packagename, PackageManager.GET_ACTIVITIES);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
     }
     /**
      Returns the TvInputProvider that was defined by the project's manifest

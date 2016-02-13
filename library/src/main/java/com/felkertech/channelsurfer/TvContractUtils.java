@@ -132,11 +132,9 @@ public class TvContractUtils {
                 mExistingChannelsMap.remove(Math.round(rowId));
                 mExistingChannelsMap.remove(channel.getNumber().hashCode());
             }
-            if (!TextUtils.isEmpty(channel.getLogoUrl()) && false) { //FIXME Hack to show title
-//                logos.put(TvContract.buildChannelLogoUri(uri), channel.logoUrl);
                 Log.d(TAG, "LOGO "+uri.toString()+" "+channel.getLogoUrl());
                 logos.put(TvContract.buildChannelLogoUri(uri), channel.getLogoUrl());
-            }
+
             Log.d(TAG, mExistingChannelsMap.toString());
         }
         if (!logos.isEmpty()) {

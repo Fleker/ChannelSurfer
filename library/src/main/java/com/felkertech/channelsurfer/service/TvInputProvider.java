@@ -112,11 +112,6 @@ public abstract class TvInputProvider extends TvInputService {
      * @return An ArrayList of channels
      */
     public List<Channel> getCurrentChannels(Context mContext) {
-        TvContentRating rating = TvContentRating.createRating(
-                "com.android.tv",
-                "US_TV",
-                "US_TV_PG",
-                "US_TV_D", "US_TV_L");
         try {
             ApplicationInfo app = getApplicationContext().getPackageManager().getApplicationInfo(getApplicationContext().getPackageName(), PackageManager.GET_META_DATA);
             Bundle bundle = app.metaData;
@@ -237,7 +232,21 @@ public abstract class TvInputProvider extends TvInputService {
             String channels = TvContract.buildInputId(new ComponentName(getPackageName(), service.substring(getPackageName().length())));
             Log.d(TAG, new ComponentName(getPackageName(), service.substring(getPackageName().length())).flattenToString());
 
-            Uri channelsQuery = TvContract.buildChannelsUriForInput(channels);
+            List<Program> programs = getPrograms(getApplicationContext(),
+                    TvContract.buildChannelUri(channel.getChannelId()));
+            Log.d(TAG, "Program from channel "+TvContract.buildChannelUri(channel.getChannelId()));
+            Log.d(TAG, "Program from chanel "+channel.getChannelId());
+            Program currentProgram = null;
+            for(Program p: programs) {
+                if(p.getStartTimeUtcMillis() < new Date().getTime()) {
+                    currentProgram = p;
+                    //Log.d(TAG, p.toString());
+                }
+            }
+            //Log.d(TAG, "OK");
+            return currentProgram;
+
+            /*Uri channelsQuery = TvContract.buildChannelsUriForInput(channels);
             Cursor cursor = null;
             try {
                 cursor = getApplicationContext().getContentResolver().query(channelsQuery, null, null, null, null);
@@ -254,6 +263,8 @@ public abstract class TvInputProvider extends TvInputService {
                         //!
                         List<Program> programs = getPrograms(getApplicationContext(),
                                 TvContract.buildChannelUri(cursor.getInt(cursor.getColumnIndex(TvContract.Channels._ID))));
+                        Log.d(TAG, "Program from channel "+TvContract.buildChannelUri(cursor.getInt(cursor.getColumnIndex(TvContract.Channels._ID))));
+                        Log.d(TAG, "Program from chanel "+cursor.getInt(cursor.getColumnIndex(TvContract.Channels._ID)));
                         Program currentProgram = null;
                         for(Program p: programs) {
                             if(p.getStartTimeUtcMillis() < new Date().getTime()) {
@@ -269,7 +280,7 @@ public abstract class TvInputProvider extends TvInputService {
                 if (cursor != null) {
                     cursor.close();
                 }
-            }
+            }*/
 
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();

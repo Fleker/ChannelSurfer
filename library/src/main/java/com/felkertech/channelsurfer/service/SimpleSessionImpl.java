@@ -3,6 +3,7 @@ package com.felkertech.channelsurfer.service;
 import android.content.Context;
 import android.database.Cursor;
 import android.media.PlaybackParams;
+import android.media.session.MediaSession;
 import android.media.tv.TvContentRating;
 import android.media.tv.TvContract;
 import android.media.tv.TvInputManager;
@@ -12,6 +13,7 @@ import android.os.Build;
 import android.util.Log;
 import android.view.Surface;
 import android.view.View;
+import android.widget.Toast;
 
 import com.felkertech.channelsurfer.TimeShiftable;
 import com.felkertech.channelsurfer.model.Channel;
@@ -64,28 +66,33 @@ public class SimpleSessionImpl extends TvInputService.Session {
         Log.d(TAG, "Tuning to " + channelUri.toString());
         String[] projection = {TvContract.Channels.COLUMN_DISPLAY_NAME, TvContract.Channels.COLUMN_ORIGINAL_NETWORK_ID,
                 TvContract.Channels.COLUMN_SERVICE_ID, TvContract.Channels.COLUMN_TRANSPORT_STREAM_ID,
-                TvContract.Channels.COLUMN_INPUT_ID, TvContract.Channels.COLUMN_DISPLAY_NUMBER};
+                TvContract.Channels.COLUMN_INPUT_ID, TvContract.Channels.COLUMN_DISPLAY_NUMBER, TvContract.Channels._ID};
         //Now look up this channel in the DB
         try (Cursor cursor = tvInputProvider.getContentResolver().query(channelUri, projection, null, null, null)) {
             if (cursor == null || cursor.getCount() == 0) {
                 return false;
             }
             cursor.moveToNext();
+            Log.d(TAG, "Tune to "+cursor.getInt(cursor.getColumnIndex(TvContract.Channels._ID)));
+            Log.d(TAG, "And toon 2 "+channelUri);
             Channel channel = new Channel()
                     .setNumber(cursor.getString(cursor.getColumnIndex(TvContract.Channels.COLUMN_DISPLAY_NUMBER)))
                     .setName(cursor.getString(cursor.getColumnIndex(TvContract.Channels.COLUMN_DISPLAY_NAME)))
                     .setOriginalNetworkId(cursor.getInt(cursor.getColumnIndex(TvContract.Channels.COLUMN_ORIGINAL_NETWORK_ID)))
                     .setTransportStreamId(cursor.getInt(cursor.getColumnIndex(TvContract.Channels.COLUMN_TRANSPORT_STREAM_ID)))
                     .setServiceId(cursor.getInt(cursor.getColumnIndex(TvContract.Channels.COLUMN_SERVICE_ID)))
+                    .setChannelId(cursor.getInt(cursor.getColumnIndex(TvContract.Channels._ID)))
                     .setVideoHeight(1080)
                     .setVideoWidth(1920);
             this.currentChannel = channel;
             TvInputManager mTvInputManager = (TvInputManager) tvInputProvider.getApplicationContext().getSystemService(Context.TV_INPUT_SERVICE);
+            Toast.makeText(tvInputProvider.getApplicationContext(), "Parental controls enabled? "+mTvInputManager.isParentalControlsEnabled(), Toast.LENGTH_SHORT).show();
             if(mTvInputManager.isParentalControlsEnabled()) {
                 TvContentRating blockedRating = null;
                 for(int i=0;i<tvInputProvider.getProgramRightNow(channel).getContentRatings().length;i++) {
                     blockedRating = (mTvInputManager.isRatingBlocked(tvInputProvider.getProgramRightNow(channel).getContentRatings()[i]) && blockedRating == null)?tvInputProvider.getProgramRightNow(channel).getContentRatings()[i]:null;
                 }
+                Toast.makeText(tvInputProvider.getApplicationContext(), "Is channel blocked for "+blockedRating+"? Only if not null", Toast.LENGTH_SHORT).show();
                 if(blockedRating != null) {
                     notifyContentBlocked(blockedRating);
                 }
@@ -93,6 +100,8 @@ public class SimpleSessionImpl extends TvInputService.Session {
             notifyContentAllowed();
             return tvInputProvider.onTune(channel);
         } catch (Exception e) {
+            Log.e(TAG, "Tuning error");
+            Toast.makeText(tvInputProvider.getApplicationContext(), "There's an issue w/ tuning: "+e.getMessage(), Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
         return false;
