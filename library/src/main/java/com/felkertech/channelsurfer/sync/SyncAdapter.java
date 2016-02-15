@@ -116,7 +116,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     public void performSync(TvInputProvider provider, String inputId) {
         Log.d(TAG, "Actually begin the sync");
-        List<Channel> allChannels = provider.getAllChannels();
+        List<Channel> allChannels = provider.getAllChannels(getContext());
         Log.d(TAG, allChannels.toString());
         for (int i = 0; i < allChannels.size(); i++) {
             if (allChannels.get(i).getOriginalNetworkId() == 0)
@@ -146,7 +146,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         Log.d(TAG, "Now start to get programs");
         for (int i = 0; i < channelMap.size(); ++i) {
             Uri channelUri = TvContract.buildChannelUri(channelMap.keyAt(i));
-            List<Program> programList = provider.getProgramsForChannel(channelUri, channelMap.valueAt(i), startMs, endMs);
+            List<Program> programList = provider.getProgramsForChannel(getContext(), channelUri, channelMap.valueAt(i), startMs, endMs);
             Log.d(TAG, "Okay, we NEED to set the channel id first");
             for(Program p: programList) {
                 p.setChannelId(channelMap.keyAt(i));

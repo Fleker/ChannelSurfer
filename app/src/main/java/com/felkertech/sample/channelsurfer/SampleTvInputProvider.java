@@ -1,5 +1,6 @@
 package com.felkertech.sample.channelsurfer;
 
+import android.content.Context;
 import android.content.Intent;
 import android.media.PlaybackParams;
 import android.media.tv.TvContentRating;
@@ -57,7 +58,7 @@ public class SampleTvInputProvider extends MultimediaInputProvider
     }
 
     @Override
-    public List<Channel> getAllChannels() {
+    public List<Channel> getAllChannels(Context ignored) {
         Log.d(TAG, "Get all channels");
 //        Toast.makeText(SampleTvInputProvider.this, "Get all channels", Toast.LENGTH_SHORT).show();
         List<Channel> channels = new ArrayList<>();
@@ -78,7 +79,7 @@ public class SampleTvInputProvider extends MultimediaInputProvider
     }
 
     @Override
-    public List<Program> getProgramsForChannel(Uri channelUri, Channel channelInfo, long startTimeMs, long endTimeMs) {
+    public List<Program> getProgramsForChannel(Context ignored, Uri channelUri, Channel channelInfo, long startTimeMs, long endTimeMs) {
         Log.d(TAG, "Get programs for channel "+channelInfo.getName());
 //        Toast.makeText(SampleTvInputProvider.this, "Get all programs for "+channelInfo.getName(), Toast.LENGTH_SHORT).show();
         int programs = (int) ((endTimeMs-startTimeMs)/1000/60/60); //Hour long segments

@@ -43,18 +43,20 @@ public abstract class TvInputProvider extends TvInputService {
 
     /**
      * Return a list of all the channels that you currently have created
+     * @param context Your application's context, if needed
      */
-    public abstract List<Channel> getAllChannels();
+    public abstract List<Channel> getAllChannels(Context context);
 
     /**
      * Return a list of programs for a particular channel
+     * @param context Your application's context, if needed
      * @param channelUri The database Uri for this channel
      * @param channelInfo The channel
      * @param startTimeMs The starting period from which to get programs
      * @param endTimeMs The ending period from which to get programs
      * @return A list of programs
      */
-    public abstract List<Program> getProgramsForChannel(Uri channelUri, Channel channelInfo, long startTimeMs, long endTimeMs);
+    public abstract List<Program> getProgramsForChannel(Context context, Uri channelUri, Channel channelInfo, long startTimeMs, long endTimeMs);
 
     /**
      * Set your media player view onto the surface
