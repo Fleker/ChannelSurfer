@@ -11,7 +11,7 @@ ChannelSurfer takes care of all these headaches. You can simply use a single cla
     compile 'com.github.fleker:channelsurfer:0.2.3'
     
 ## Release Notes
-### 0.2.3
+### 0.2.6
 * Should now work correctly with restricted profiles
 * Can change the account icon by including `@drawable/ic_account`
 * Check the section on using the `TimeShiftable` interface to display playback controls
@@ -102,10 +102,10 @@ When this happens you will be asked to implement a handful of classes.
     public SampleTvInputProvider() { }
     
 ### Methods to Override
-#### `List<Channel> getAllChannels()`
+#### `List<Channel> getAllChannels(Context)`
 This method is meant to return all of the channels that this app provides. You can return a list where each item is a channel that you want to appear in the Live Channels app.
 
-#### `List<Program> getProgramsForChannel(Uri channelUri, Channel channelInfo, long startTimeMs, long endTimeMs)`
+#### `List<Program> getProgramsForChannel(Context, Uri channelUri, Channel channelInfo, long startTimeMs, long endTimeMs)`
 This method is meant to return all of the programs within a given time interval (now to two weeks from now) for a specific channel. If you don't have any specific programs, you can use the `getGenericProgram` method listed a little later. However, you still need to adjust the start and end time for each program.
 
 #### `boolean onSetSurface(Surface surface)` 

@@ -1,6 +1,8 @@
 package com.felkertech.sample.channelsurfer;
 
+import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.app.Activity;
 import android.os.Environment;
@@ -13,19 +15,42 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.jar.Manifest;
 
 public class SampleTvSetup extends SimpleTvSetup {
+    private int PERMISSIONS_CODE = 83;
     @Override
     public void setupTvInputProvider() {
 //        toPath = "/data/data/" + getPackageName();  // Your application path
         //We need to override this in order to save our assets to a real file, making them
         //playable in ExoPlayer
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if(checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED
+                    || checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED)
+                requestPermissions(new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSIONS_CODE);
+            else
+                startSetup();
+        } else
+            startSetup();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] results) {
+        super.onRequestPermissionsResult(requestCode, permissions, results);
+        if(results[0] == PackageManager.PERMISSION_GRANTED) {
+            startSetup();
+        }
+    }
+
+    public void startSetup() {
         copyAsset(getAssets(), "atnews.mp4", "androidtvnews.mp4");
         copyAsset(getAssets(), "ectasy.mp3", "ectasy.mp3");
         File channelsurferFolder = new File(LOCAL_FILES_FOLDER);
         channelsurferFolder.mkdir();
         super.setupTvInputProvider();
     }
+
     public static String LOCAL_FILES_FOLDER = Environment.getExternalStorageDirectory().getAbsolutePath()+"/channelsurfer";
 
 

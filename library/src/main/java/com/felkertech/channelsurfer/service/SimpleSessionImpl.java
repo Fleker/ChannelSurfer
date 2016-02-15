@@ -15,6 +15,7 @@ import android.view.Surface;
 import android.view.View;
 import android.widget.Toast;
 
+import com.felkertech.channelsurfer.R;
 import com.felkertech.channelsurfer.TimeShiftable;
 import com.felkertech.channelsurfer.model.Channel;
 
@@ -86,13 +87,15 @@ public class SimpleSessionImpl extends TvInputService.Session {
                     .setVideoWidth(1920);
             this.currentChannel = channel;
             TvInputManager mTvInputManager = (TvInputManager) tvInputProvider.getApplicationContext().getSystemService(Context.TV_INPUT_SERVICE);
-            Toast.makeText(tvInputProvider.getApplicationContext(), "Parental controls enabled? "+mTvInputManager.isParentalControlsEnabled(), Toast.LENGTH_SHORT).show();
+            if(tvInputProvider.getApplicationContext().getResources().getBoolean(R.bool.channel_surfer_lifecycle_toasts))
+                Toast.makeText(tvInputProvider.getApplicationContext(), "Parental controls enabled? "+mTvInputManager.isParentalControlsEnabled(), Toast.LENGTH_SHORT).show();
             if(mTvInputManager.isParentalControlsEnabled()) {
                 TvContentRating blockedRating = null;
                 for(int i=0;i<tvInputProvider.getProgramRightNow(channel).getContentRatings().length;i++) {
                     blockedRating = (mTvInputManager.isRatingBlocked(tvInputProvider.getProgramRightNow(channel).getContentRatings()[i]) && blockedRating == null)?tvInputProvider.getProgramRightNow(channel).getContentRatings()[i]:null;
                 }
-                Toast.makeText(tvInputProvider.getApplicationContext(), "Is channel blocked for "+blockedRating+"? Only if not null", Toast.LENGTH_SHORT).show();
+                if(tvInputProvider.getApplicationContext().getResources().getBoolean(R.bool.channel_surfer_lifecycle_toasts))
+                    Toast.makeText(tvInputProvider.getApplicationContext(), "Is channel blocked w/ "+blockedRating+"? Only if not null", Toast.LENGTH_SHORT).show();
                 if(blockedRating != null) {
                     notifyContentBlocked(blockedRating);
                 }
@@ -101,7 +104,8 @@ public class SimpleSessionImpl extends TvInputService.Session {
             return tvInputProvider.onTune(channel);
         } catch (Exception e) {
             Log.e(TAG, "Tuning error");
-            Toast.makeText(tvInputProvider.getApplicationContext(), "There's an issue w/ tuning: "+e.getMessage(), Toast.LENGTH_SHORT).show();
+            if(tvInputProvider.getApplicationContext().getResources().getBoolean(R.bool.channel_surfer_lifecycle_toasts))
+                Toast.makeText(tvInputProvider.getApplicationContext(), "There's an issue w/ tuning: "+e.getMessage(), Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
         return false;
