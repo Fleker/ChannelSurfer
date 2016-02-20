@@ -3,7 +3,7 @@ package com.felkertech.channelsurfer;
 import android.media.PlaybackParams;
 
 /**
- * Created by guest1 on 1/30/2016.
+ * Created by Nick on 1/30/2016.
  */
 public interface TimeShiftable {
     /**

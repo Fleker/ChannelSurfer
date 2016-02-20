@@ -19,6 +19,8 @@ import com.felkertech.channelsurfer.R;
 import com.felkertech.channelsurfer.TimeShiftable;
 import com.felkertech.channelsurfer.model.Channel;
 
+import java.util.Date;
+
 /**
  * Simple session implementation which plays videos on the application's tune request, integrated
  * with a TvInputProvider.
@@ -60,8 +62,12 @@ public class SimpleSessionImpl extends TvInputService.Session {
         return tvInputProvider.onCreateOverlayView();
     }
 
+    private TvContentRating blocked;
+    protected Date lastTune;
     @Override
     public boolean onTune(Uri channelUri) {
+        blocked = null; //Reset our channel blocking until we check again
+        lastTune = new Date();
         notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_TUNING);
         setOverlayViewEnabled(true);
         Log.d(TAG, "Tuning to " + channelUri.toString());
@@ -96,11 +102,13 @@ public class SimpleSessionImpl extends TvInputService.Session {
                 }
                 if(tvInputProvider.getApplicationContext().getResources().getBoolean(R.bool.channel_surfer_lifecycle_toasts))
                     Toast.makeText(tvInputProvider.getApplicationContext(), "Is channel blocked w/ "+blockedRating+"? Only if not null", Toast.LENGTH_SHORT).show();
+                blocked = blockedRating;
                 if(blockedRating != null) {
                     notifyContentBlocked(blockedRating);
+                } else {
+                    notifyContentAllowed();
                 }
             }
-            notifyContentAllowed();
             return tvInputProvider.onTune(channel);
         } catch (Exception e) {
             Log.e(TAG, "Tuning error");
@@ -109,6 +117,9 @@ public class SimpleSessionImpl extends TvInputService.Session {
             e.printStackTrace();
         }
         return false;
+    }
+    private boolean isBlocked() {
+        return blocked!=null;
     }
 
     @Override

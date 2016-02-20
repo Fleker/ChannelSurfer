@@ -28,8 +28,7 @@ import java.util.List;
 /**
  * Created by guest1 on 1/7/2016.
  */
-public class SampleTvInputProvider extends MultimediaInputProvider
-        implements TimeShiftable {
+public class SampleTvInputProvider extends MultimediaInputProvider {
     private String TAG = "SampleTvInputProvider";
 
     @Override
@@ -134,11 +133,9 @@ public class SampleTvInputProvider extends MultimediaInputProvider
     }
 
     Channel currentChannel;
-    Date lastTune;
     @Override
     public boolean onTune(Channel channel) {
         this.currentChannel = channel;
-        this.lastTune = new Date();
         Program p = getProgramRightNow(channel);
         Toast.makeText(SampleTvInputProvider.this, "Tuning to "+channel.getName()+" with program "+p.getTitle()+" at "+p.getInternalProviderData(), Toast.LENGTH_SHORT).show();
         Log.d(TAG, "Tuning to " + channel.getName());
@@ -188,45 +185,5 @@ public class SampleTvInputProvider extends MultimediaInputProvider
 
     public boolean isLocal() {
         return currentChannel != null && (currentChannel.getNumber().equals("3") || currentChannel.getNumber().equals("4"));
-    }
-
-    @Override
-    public void onMediaPause() {
-        if(isLocal()) {
-            exoPlayer.setPlayWhenReady(false);
-        }
-    }
-
-    @Override
-    public void onMediaResume() {
-        if(isLocal()) {
-            exoPlayer.setPlayWhenReady(true);
-        }
-    }
-
-    @Override
-    public void onMediaSeekTo(long timeMs) {
-        if(isLocal()) {
-            exoPlayer.seekTo(mediaGetCurrentMs() - timeMs);
-        }
-    }
-
-    @Override
-    public long mediaGetStartMs() {
-        if(lastTune == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            return TvInputManager.TIME_SHIFT_INVALID_TIME;
-        else if(lastTune == null)
-            return -1;
-        return lastTune.getTime();
-    }
-
-    @Override
-    public long mediaGetCurrentMs() {
-        return new Date().getTime();
-    }
-
-    @Override
-    public void onMediaSetPlaybackParams(PlaybackParams playbackParams) {
-        //Do nothing
     }
 }
