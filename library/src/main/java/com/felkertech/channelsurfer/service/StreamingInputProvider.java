@@ -1,5 +1,6 @@
 package com.felkertech.channelsurfer.service;
 
+import android.content.Context;
 import android.net.Uri;
 import android.view.View;
 
@@ -19,7 +20,7 @@ import java.util.List;
  */
 public abstract class StreamingInputProvider extends MultimediaInputProvider {
     @Override
-    public List<Program> getProgramsForChannel(Uri channelUri, Channel channelInfo, long startTimeMs, long endTimeMs) {
+    public List<Program> getProgramsForChannel(Context c, Uri channelUri, Channel channelInfo, long startTimeMs, long endTimeMs) {
         int programs = (int) ((endTimeMs-startTimeMs)/1000/60/60); //Hour long segments
         int SEGMENT = 1000*60*60; //Hour long segments
         List<Program> programList = new ArrayList<>();

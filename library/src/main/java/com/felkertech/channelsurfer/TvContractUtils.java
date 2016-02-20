@@ -97,8 +97,8 @@ public class TvContractUtils {
                 }
             } else
                 values.put(Channels.COLUMN_ORIGINAL_NETWORK_ID, rowId);
-//            values.put(Channels.COLUMN_TRANSPORT_STREAM_ID, channel.transportStreamId);
-            values.put(Channels.COLUMN_TRANSPORT_STREAM_ID, 1); //FIXME Hack; can't get ChannelDatabase to output correctly
+
+            values.put(Channels.COLUMN_TRANSPORT_STREAM_ID, 1);
             values.put(Channels.COLUMN_SERVICE_ID, channel.getServiceId());
             values.put(Channels.COLUMN_INTERNAL_PROVIDER_DATA, channel.getInternalProviderData());
             String videoFormat = getVideoFormat(channel.getVideoHeight());
@@ -132,11 +132,9 @@ public class TvContractUtils {
                 mExistingChannelsMap.remove(Math.round(rowId));
                 mExistingChannelsMap.remove(channel.getNumber().hashCode());
             }
-            if (!TextUtils.isEmpty(channel.getLogoUrl()) && false) { //FIXME Hack to show title
-//                logos.put(TvContract.buildChannelLogoUri(uri), channel.logoUrl);
                 Log.d(TAG, "LOGO "+uri.toString()+" "+channel.getLogoUrl());
                 logos.put(TvContract.buildChannelLogoUri(uri), channel.getLogoUrl());
-            }
+
             Log.d(TAG, mExistingChannelsMap.toString());
         }
         if (!logos.isEmpty()) {

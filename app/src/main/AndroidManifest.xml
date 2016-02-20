@@ -4,9 +4,12 @@
     package="com.felkertech.sample.channelsurfer"
     tools:ignore="MissingLeanbackLauncher,MissingLeanbackSupport">
 
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
+        android:restrictedAccountType="@string/app_name"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.Leanback">
@@ -30,13 +33,27 @@
 
         <activity
             android:name=".SampleTvSetup"
-            android:exported="true"
             android:enabled="true"
+            android:exported="true"
             android:label="@string/title_activity_sample_tv_setup">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
+        <activity android:name=".Launcher">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="dfe843f8af6acfe924ff6efa0c816fda4ece9f5c" />
     </application>
 
+    <uses-permission android:name="android.permission.INTERNET" />
 </manifest>

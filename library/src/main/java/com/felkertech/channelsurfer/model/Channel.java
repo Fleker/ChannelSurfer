@@ -7,12 +7,14 @@ public class Channel {
     private String name;
     private String logoUrl;
     private String internalProviderData;
+    private String description;
     private int originalNetworkId;
     private int transportStreamId;
     private int serviceId;
     private int videoWidth;
     private int videoHeight;
     private List<Program> programs;
+    private int channelId;
 
     public Channel() {}
     public Channel(String number, String name, String logoUrl, int originalNetworkId,
@@ -132,8 +134,26 @@ public class Channel {
         return this;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public Channel setDescription(String description) {
+        this.description = description;
+        return this;
+    }
+
     @Override
     public String toString() {
         return name+" ("+number+")";
+    }
+
+    public int getChannelId() {
+        return channelId;
+    }
+
+    public Channel setChannelId(int channelId) {
+        this.channelId = channelId;
+        return this;
     }
 }

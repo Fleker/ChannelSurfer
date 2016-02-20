@@ -23,7 +23,6 @@ import android.content.ContentProviderOperation;
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.content.SyncResult;
-import android.database.Cursor;
 import android.media.tv.TvContract;
 import android.net.Uri;
 import android.os.Bundle;
@@ -35,7 +34,7 @@ import android.util.Log;
 import android.util.LongSparseArray;
 import android.widget.Toast;
 
-import com.felkertech.channelsurfer.LibraryUtils;
+import com.felkertech.channelsurfer.utils.LiveChannelsUtils;
 import com.felkertech.channelsurfer.TvContractUtils;
 import com.felkertech.channelsurfer.model.Channel;
 import com.felkertech.channelsurfer.model.Program;
@@ -89,21 +88,21 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         this.provider = provider;
         this.syncResult = syncResult;
 
-        Log.d(TAG, "Opened SyncAdapter");
+//        Log.d(TAG, "Opened SyncAdapter");
 
         doLocalSync();
     }
 
     public void doLocalSync() {
-        Log.d(TAG, "onPerformSync(" + account + ", " + authority + ", " + extras + ")");
+//        Log.d(TAG, "onPerformSync(" + account + ", " + authority + ", " + extras.toString() + ")");
         final String inputId = extras.getString(SyncAdapter.BUNDLE_KEY_INPUT_ID);
         if (inputId == null) {
-            Log.e(TAG, "Need a valid input id");
+//            Log.e(TAG, "Should have a valid input id");
             return;
         }
         //REFRESH CHANNEL DATA FROM SERVICE
 
-        LibraryUtils.getTvInputProvider(mContext, new LibraryUtils.TvInputProviderCallback() {
+        LiveChannelsUtils.getTvInputProvider(mContext, new LiveChannelsUtils.TvInputProviderCallback() {
             @Override
             public void onTvInputProviderCallback(TvInputProvider provider) {
                 performCustomSync(provider, inputId);
@@ -117,7 +116,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     public void performSync(TvInputProvider provider, String inputId) {
         Log.d(TAG, "Actually begin the sync");
-        List<Channel> allChannels = provider.getAllChannels();
+        List<Channel> allChannels = provider.getAllChannels(getContext());
         Log.d(TAG, allChannels.toString());
         for (int i = 0; i < allChannels.size(); i++) {
             if (allChannels.get(i).getOriginalNetworkId() == 0)
@@ -147,7 +146,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         Log.d(TAG, "Now start to get programs");
         for (int i = 0; i < channelMap.size(); ++i) {
             Uri channelUri = TvContract.buildChannelUri(channelMap.keyAt(i));
-            List<Program> programList = provider.getProgramsForChannel(channelUri, channelMap.valueAt(i), startMs, endMs);
+            List<Program> programList = provider.getProgramsForChannel(getContext(), channelUri, channelMap.valueAt(i), startMs, endMs);
             Log.d(TAG, "Okay, we NEED to set the channel id first");
             for(Program p: programList) {
                 p.setChannelId(channelMap.keyAt(i));

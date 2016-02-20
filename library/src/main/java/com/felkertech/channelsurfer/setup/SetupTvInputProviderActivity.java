@@ -29,7 +29,7 @@ public abstract class SetupTvInputProviderActivity extends Activity {
         info = "";
         if(getIntent() != null) {
             info = getIntent().getStringExtra(TvInputInfo.EXTRA_INPUT_ID);
-            Log.d(TAG, info);
+            Log.d(TAG, info+"");
         }
 
         SyncUtils.setUpPeriodicSync(this, info);

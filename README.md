@@ -8,9 +8,15 @@ As a fan of the feature, I wanted more apps to implement it. However, I knew fir
 
 ChannelSurfer takes care of all these headaches. You can simply use a single class to take care of both the EPG (electronic program guide) and playback. It contains all the boilerplate code and XML files which can simply be imported by:
 
-    compile 'com.github.fleker:channelsurfer:0.2.1'
+    compile 'com.github.fleker:channelsurfer:0.2.3'
     
 ## Release Notes
+### 0.2.6
+* Should now work correctly with restricted profiles
+* Can change the account icon by including `@drawable/ic_account`
+* Check the section on using the `TimeShiftable` interface to display playback controls
+* Sample app shows how to play from a variety of sources: website, HLS stream, local video, local audio with overlay
+
 ### 0.2.1
 * Imports and uses the `ExoPlayer` library in most of its `TvInputProvider` classes
 * More `TvInputProvider` classes for more specific use cases: `ExoPlayerInputProvider`, `MediaPlayerInputProvider`, `StreamingInputProvider`
@@ -63,6 +69,9 @@ But this can simply extend the `SimpleTvSetup` activity without overriding any m
     public class SampleTvSetup extends SimpleTvSetup {
     
     }
+    
+If you want to provide an icon for your app in the system's account settings, you can provide a custom 
+drawable named `ic_account`.
 
 ### Customizing Sync Adapter
 You can't do this yet. Neither can you configure the DummyAccount class. If people think it's a good idea, I'm all for it.
@@ -93,10 +102,10 @@ When this happens you will be asked to implement a handful of classes.
     public SampleTvInputProvider() { }
     
 ### Methods to Override
-#### `List<Channel> getAllChannels()`
+#### `List<Channel> getAllChannels(Context)`
 This method is meant to return all of the channels that this app provides. You can return a list where each item is a channel that you want to appear in the Live Channels app.
 
-#### `List<Program> getProgramsForChannel(Uri channelUri, Channel channelInfo, long startTimeMs, long endTimeMs)`
+#### `List<Program> getProgramsForChannel(Context, Uri channelUri, Channel channelInfo, long startTimeMs, long endTimeMs)`
 This method is meant to return all of the programs within a given time interval (now to two weeks from now) for a specific channel. If you don't have any specific programs, you can use the `getGenericProgram` method listed a little later. However, you still need to adjust the start and end time for each program.
 
 #### `boolean onSetSurface(Surface surface)` 
@@ -160,6 +169,8 @@ Rounding is nice. Many channels will organize programs into hour or half-hour se
 
 You can also pass any number of milliseconds and that time will be rounded down as well.
 
+#### Get local video uri
+If your stream is playing a video that already exists, you can use the method `getLocalVideoUri(int resId, String packageName)` to get the Uri of this video as a string. There is an alias method `getLocalAudioUri(int resId, String packageName)` which can be used for local audio files.
 
 ### WebViewInputProvider
 What if you could set any website as a Live Channel? There's any easy way to do that. Just extend the `WebViewInputProvider` class. It simplifies the methods that you need to override. 
@@ -238,6 +249,13 @@ When you finished building your program, there are more things you can do with i
 `setStartTimeUtcMillis(long)` and `setEndTimeUtcMillis(long)` allow you to adjust the start and end time for a given program, fine tuning it until you return the final list for syncing. 
 
 To find out how long a program is in milliseconds, call the `getDuration()` method.
+
+## Time Shifting
+In many modern channel streaming services, you don't only have to provide a live stream of the chosen content but also the ability to pause and move back in time. For some Tv input services, this may not be valid if it's being streamed directly from a third-party stream. However, for channels and programs that have this ability, it should be implemented to provide users the best experience.
+
+In order to support time shifting, your `TvInputProvider` must implement the `TimeShiftable` interface and then implement the methods. It does not appear as if these APIs enabled in the Live Channels app though.
+
+**Note: these APIs on only available on Android Marshmallow (API version 23) or higher**
 
 ## Examples/Guides
 ### Returning generic channels

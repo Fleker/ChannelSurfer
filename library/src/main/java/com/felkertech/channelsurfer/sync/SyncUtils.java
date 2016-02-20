@@ -16,12 +16,14 @@ public class SyncUtils {
     private static final String CONTENT_AUTHORITY = TvContract.AUTHORITY;
 
     public static void setUpPeriodicSync(Context context, String inputId) {
+        inputId = inputId==null?"":inputId;
         Account account = DummyAccountService.getAccount(context);
         AccountManager accountManager =
                 (AccountManager) context.getSystemService(Context.ACCOUNT_SERVICE);
         if (!accountManager.addAccountExplicitly(account, null, null)) {
             Log.w(TAG, "Account already exists.");
         }
+        Log.d(TAG, "Set sync with "+inputId);
         ContentResolver.setIsSyncable(account, CONTENT_AUTHORITY, 1);
         ContentResolver.setSyncAutomatically(account, CONTENT_AUTHORITY, true);
         Bundle bundle = new Bundle();
@@ -31,6 +33,7 @@ public class SyncUtils {
     }
 
     public static void requestSync(Context mContext, String inputId) {
+        inputId = inputId==null?"":inputId;
         Bundle bundle = new Bundle();
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);

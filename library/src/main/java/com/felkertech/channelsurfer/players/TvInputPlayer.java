@@ -22,7 +22,6 @@ import com.google.android.exoplayer.MediaCodecTrackRenderer;
 import com.google.android.exoplayer.MediaCodecUtil;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
-import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.ChunkSource;
 import com.google.android.exoplayer.chunk.Format;
@@ -41,7 +40,6 @@ import com.google.android.exoplayer.hls.HlsPlaylistParser;
 import com.google.android.exoplayer.hls.HlsSampleSource;
 import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.TextRenderer;
-import com.google.android.exoplayer.text.TextTrackRenderer;
 import com.google.android.exoplayer.text.eia608.Eia608TrackRenderer;
 import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.upstream.DataSource;
@@ -79,8 +77,8 @@ public class TvInputPlayer implements TextRenderer {
     private static final int MIN_BUFFER_MS = 1000;
     private static final int MIN_REBUFFER_MS = 5000;
 
-    private int BUFFER_SEGMENT_SIZE = 256 * 1024 * 4;
-    private int BUFFER_SEGMENTS = 64 * 2;
+    public static int BUFFER_SEGMENT_SIZE = 256 * 1024 * 2;
+    public static int BUFFER_SEGMENTS = 64 * 1;
 
 
     private static final int VIDEO_BUFFER_SEGMENTS = 200;
@@ -176,6 +174,14 @@ public class TvInputPlayer implements TextRenderer {
         });
     }
 
+    public void prepare(TrackRenderer audioRenderer, TrackRenderer videoRenderer, TrackRenderer textRenderer) {
+        this.audioRenderer = audioRenderer;
+        this.videoRenderer = videoRenderer;
+        this.textRenderer = textRenderer;
+        Log.d(TAG, "Prepare internal from local file");
+        prepareInternal();
+//        mPlayer.prepare(audioRenderer, videoRenderer, textRenderer);
+    }
     public void prepare(final Context context, final Uri originalUri, int sourceType) {
         final String userAgent = getUserAgent(context);
         final DefaultHttpDataSource dataSource = new DefaultHttpDataSource(userAgent, null);
@@ -486,15 +492,20 @@ public class TvInputPlayer implements TextRenderer {
     }
 
     private void prepareInternal() {
+        prepareInternal(false);
+    }
+    private void prepareInternal(boolean usingLocalMedia) {
         Log.d(TAG, "Prepare internal");
         try {
-            mPlayer.prepare(audioRenderer, videoRenderer, textRenderer);
-            mPlayer.sendMessage(audioRenderer, MediaCodecAudioTrackRenderer.MSG_SET_VOLUME,
-                    mVolume);
-            mPlayer.sendMessage(videoRenderer, MediaCodecVideoTrackRenderer.MSG_SET_SURFACE,
-                    mSurface);
-            // Disable text track by default.
-            mPlayer.setRendererEnabled(TvTrackInfo.TYPE_SUBTITLE, false);
+//            if(!usingLocalMedia) {
+                mPlayer.prepare(audioRenderer, videoRenderer, textRenderer);
+                mPlayer.sendMessage(audioRenderer, MediaCodecAudioTrackRenderer.MSG_SET_VOLUME,
+                        mVolume);
+                mPlayer.sendMessage(videoRenderer, MediaCodecVideoTrackRenderer.MSG_SET_SURFACE,
+                        mSurface);
+                // Disable text track by default.
+                mPlayer.setRendererEnabled(TvTrackInfo.TYPE_SUBTITLE, false);
+//            }
             for (Callback callback : mCallbacks) {
                 callback.onPrepared();
             }
@@ -538,7 +549,6 @@ public class TvInputPlayer implements TextRenderer {
                 dataSource.setRequestProperty(pair[0], pair[1]);
             }
         }
-
         return uri.buildUpon().path(parameters[0]).build();
     }
 

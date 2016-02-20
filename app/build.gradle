@@ -1,4 +1,19 @@
+buildscript {
+    repositories {
+        maven { url 'https://maven.fabric.io/public' }
+    }
+
+    dependencies {
+        classpath 'io.fabric.tools:gradle:1.+'
+    }
+}
 apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
+
+repositories {
+    maven { url 'https://maven.fabric.io/public' }
+}
+
 
 
 android {
@@ -9,8 +24,8 @@ android {
         applicationId "com.felkertech.sample.channelsurfer"
         minSdkVersion 21
         targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName "0.2.6"
     }
     buildTypes {
         release {
@@ -25,4 +40,7 @@ dependencies {
     compile project(':library')
     compile 'com.android.support:recyclerview-v7:23.1.1'
     compile 'com.android.support:leanback-v17:23.1.1'
+    compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
+        transitive = true;
+    }
 }

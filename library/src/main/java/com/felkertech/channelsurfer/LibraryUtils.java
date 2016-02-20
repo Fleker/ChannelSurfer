@@ -15,12 +15,13 @@ import java.lang.reflect.InvocationTargetException;
 /**
  * Created by guest1 on 1/6/2016.
  */
+@Deprecated
 public class LibraryUtils {
     private static String TAG = "LibraryUtils";
     /**
-        Returns the TvInputProvider that was defined by the project's manifest
+     Returns the TvInputProvider that was defined by the project's manifest
      **/
-    public static TvInputProvider getTvInputProvider(Context mContext, final TvInputProviderCallback callback) {
+/*    public static TvInputProvider getTvInputProvider(Context mContext, final TvInputProviderCallback callback) {
         ApplicationInfo app = null;
         try {
             Log.d(TAG, mContext.getPackageName()+" >");
@@ -59,5 +60,6 @@ public class LibraryUtils {
 
     public interface TvInputProviderCallback {
         void onTvInputProviderCallback(TvInputProvider provider);
-    }
+    }*/
+
 }

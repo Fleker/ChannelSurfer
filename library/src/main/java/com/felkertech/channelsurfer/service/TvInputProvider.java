@@ -1,10 +1,12 @@
 package com.felkertech.channelsurfer.service;
 
+import android.app.Service;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.media.tv.TvContentRating;
 import android.media.tv.TvContract;
@@ -17,10 +19,16 @@ import android.util.Log;
 import android.view.Surface;
 import android.view.View;
 
+import com.felkertech.channelsurfer.R;
 import com.felkertech.channelsurfer.model.Channel;
 import com.felkertech.channelsurfer.model.Program;
 import com.felkertech.channelsurfer.sync.SyncAdapter;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -31,22 +39,24 @@ import java.util.List;
 public abstract class TvInputProvider extends TvInputService {
     private static String TAG = "TvInputProvider";
     /** Default constructor **/
-    public TvInputProvider() {}
+    public TvInputProvider() { Log.d(TAG, "Created TvInputProvider"); }
 
     /**
      * Return a list of all the channels that you currently have created
+     * @param context Your application's context, if needed
      */
-    public abstract List<Channel> getAllChannels();
+    public abstract List<Channel> getAllChannels(Context context);
 
     /**
      * Return a list of programs for a particular channel
+     * @param context Your application's context, if needed
      * @param channelUri The database Uri for this channel
      * @param channelInfo The channel
      * @param startTimeMs The starting period from which to get programs
      * @param endTimeMs The ending period from which to get programs
      * @return A list of programs
      */
-    public abstract List<Program> getProgramsForChannel(Uri channelUri, Channel channelInfo, long startTimeMs, long endTimeMs);
+    public abstract List<Program> getProgramsForChannel(Context context, Uri channelUri, Channel channelInfo, long startTimeMs, long endTimeMs);
 
     /**
      * Set your media player view onto the surface
@@ -104,11 +114,6 @@ public abstract class TvInputProvider extends TvInputService {
      * @return An ArrayList of channels
      */
     public List<Channel> getCurrentChannels(Context mContext) {
-        TvContentRating rating = TvContentRating.createRating(
-                "com.android.tv",
-                "US_TV",
-                "US_TV_PG",
-                "US_TV_D", "US_TV_L");
         try {
             ApplicationInfo app = getApplicationContext().getPackageManager().getApplicationInfo(getApplicationContext().getPackageName(), PackageManager.GET_META_DATA);
             Bundle bundle = app.metaData;
@@ -175,6 +180,17 @@ public abstract class TvInputProvider extends TvInputService {
         return programs;
     }
 
+    protected static TvContentRating RATING_PG = TvContentRating.createRating(
+            "com.android.tv",
+            "US_TV",
+            "US_TV_PG",
+            "US_TV_D", "US_TV_L");
+    protected static TvContentRating RATING_MA = TvContentRating.createRating(
+            "com.android.tv",
+            "US_TV",
+            "US_TV_MA",
+            "US_TV_V", "US_TV_S");
+
     /**
      * If you don't have access to an EPG or don't want to supply programs, you can simply
      * add several instances of this generic program object.
@@ -184,11 +200,7 @@ public abstract class TvInputProvider extends TvInputService {
      * @return A very generic program object
      */
     public Program getGenericProgram(Channel channel) {
-        TvContentRating rating = TvContentRating.createRating(
-                "com.android.tv",
-                "US_TV",
-                "US_TV_PG",
-                "US_TV_D", "US_TV_L");
+        TvContentRating rating = RATING_PG;
         return new Program.Builder()
                 .setTitle(channel.getName() + " Live")
                 .setProgramId(channel.getServiceId())
@@ -207,6 +219,12 @@ public abstract class TvInputProvider extends TvInputService {
                 .build();
     }
 
+    /**
+     * Queries the channel list to find the given channel and then queries the EPG (electronic
+     * programming guide) to find the program that is playing right now.
+     * @param channel The channel you are tuned to
+     * @return The current program on provided channel
+     */
     public Program getProgramRightNow(Channel channel) {
         ApplicationInfo app = null;
         try {
@@ -216,7 +234,21 @@ public abstract class TvInputProvider extends TvInputService {
             String channels = TvContract.buildInputId(new ComponentName(getPackageName(), service.substring(getPackageName().length())));
             Log.d(TAG, new ComponentName(getPackageName(), service.substring(getPackageName().length())).flattenToString());
 
-            Uri channelsQuery = TvContract.buildChannelsUriForInput(channels);
+            List<Program> programs = getPrograms(getApplicationContext(),
+                    TvContract.buildChannelUri(channel.getChannelId()));
+            Log.d(TAG, "Program from channel "+TvContract.buildChannelUri(channel.getChannelId()));
+            Log.d(TAG, "Program from chanel "+channel.getChannelId());
+            Program currentProgram = null;
+            for(Program p: programs) {
+                if(p.getStartTimeUtcMillis() < new Date().getTime()) {
+                    currentProgram = p;
+                    //Log.d(TAG, p.toString());
+                }
+            }
+            //Log.d(TAG, "OK");
+            return currentProgram;
+
+            /*Uri channelsQuery = TvContract.buildChannelsUriForInput(channels);
             Cursor cursor = null;
             try {
                 cursor = getApplicationContext().getContentResolver().query(channelsQuery, null, null, null, null);
@@ -233,14 +265,16 @@ public abstract class TvInputProvider extends TvInputService {
                         //!
                         List<Program> programs = getPrograms(getApplicationContext(),
                                 TvContract.buildChannelUri(cursor.getInt(cursor.getColumnIndex(TvContract.Channels._ID))));
+                        Log.d(TAG, "Program from channel "+TvContract.buildChannelUri(cursor.getInt(cursor.getColumnIndex(TvContract.Channels._ID))));
+                        Log.d(TAG, "Program from chanel "+cursor.getInt(cursor.getColumnIndex(TvContract.Channels._ID)));
                         Program currentProgram = null;
                         for(Program p: programs) {
                             if(p.getStartTimeUtcMillis() < new Date().getTime()) {
                                 currentProgram = p;
-                                Log.d(TAG, p.toString());
+                                //Log.d(TAG, p.toString());
                             }
                         }
-                        Log.d(TAG, "OK");
+                        //Log.d(TAG, "OK");
                         return currentProgram;
                     }
                 }
@@ -248,7 +282,7 @@ public abstract class TvInputProvider extends TvInputService {
                 if (cursor != null) {
                     cursor.close();
                 }
-            }
+            }*/
 
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
@@ -307,6 +341,22 @@ public abstract class TvInputProvider extends TvInputService {
     }
 
     /**
+     * You can notify Live Channels that this content is allowed to be displayed within the
+     * confines of the parental controls
+     */
+    public void notifyVideoAllowed() {
+        simpleSession.notifyContentAllowed();
+    }
+
+    /**
+     * You can notify Live Channels that the content about to be played is disallowed due to
+     * parental settings and will not be displayed
+     */
+    public void notifyVideoBlocked() {
+//        simpleSession.notifyContentBlocked(getProgramRightNow());
+    }
+
+    /**
      * When your video is available, should an overlay be displayed on top of the stream
      * @param enable true if you want your overlay to be drawn on top
      */
@@ -325,5 +375,41 @@ public abstract class TvInputProvider extends TvInputService {
      */
     public void notifyVideoUnavailable(int reason) {
         simpleSession.notifyVideoUnavailable(reason);
+    }
+
+    /**
+     * You can change the dimensions of the layout surface by providing the overlay size in pixels.
+     * If none are provided, the default dimensions will be selected
+     * @return an integer array for the left, top, right, and bottom directions in pixels
+     */
+    public int[] getLayoutDimensions() {
+        return null;
+    }
+
+    /**
+     * Gets a valid Uri of a local video file
+     * @param assetname The resource id of the video
+     * @return A Uri as a string
+     */
+    public String getLocalVideoUri(String assetname) {
+        File f = new File(assetname);
+        Log.d(TAG, "Video path "+f.getAbsolutePath());
+        String uri = Uri.fromFile(f).toString();
+        Log.d(TAG, "Uri "+uri);
+        return uri;
+//        return "file:/"+assetname;
+//        return "asset:///"+assetname;
+    }
+    /**
+     * An alias for the getLocalVideoUri method
+     * @param assetname The resource id of the audio
+     * @return A Uri as a string
+     */
+    public String getLocalAudioUri(String assetname) {
+        return getLocalVideoUri(assetname);
+    }
+
+    public SimpleSessionImpl getSession() {
+        return simpleSession;
     }
 }
