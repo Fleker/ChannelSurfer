@@ -90,21 +90,23 @@ public abstract class ExoPlayerInputProvider extends TvInputProvider
 
     @Override
     public void onMediaSeekTo(long timeMs) {
-        exoPlayer.seekTo(mediaGetCurrentMs() - timeMs);
+        Log.d(TAG, "Seek from "+mediaGetCurrentMs()+" to "+timeMs);
+        exoPlayer.seekTo(timeMs - mediaGetStartMs());
     }
 
     @Override
     public long mediaGetStartMs() {
         if(simpleSession.lastTune == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             return TvInputManager.TIME_SHIFT_INVALID_TIME;
-        else if(simpleSession.lastTune == null)
-            return -1;
+        else if(simpleSession.lastTune == null) {
+            simpleSession.lastTune = new Date();
+        }
         return simpleSession.lastTune.getTime();
     }
 
     @Override
     public long mediaGetCurrentMs() {
-        return new Date().getTime();
+        return exoPlayer.getCurrentPosition()+mediaGetStartMs();
     }
 
     @Override

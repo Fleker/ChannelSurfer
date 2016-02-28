@@ -22,9 +22,13 @@ import java.lang.reflect.InvocationTargetException;
 public class LiveChannelsUtils {
     private static String TAG = "LiveUtils";
     private static String ANDROID_TV_LIVE_CHANNELS = "com.google.android.tv";
+    private static String SONY_LIVE_CHANNELS = "com.sony.dtv.tvplayer";
     public static Intent getLiveChannels(Activity mActivity) {
         if(isPackageInstalled(ANDROID_TV_LIVE_CHANNELS, mActivity)) {
             Intent i = mActivity.getPackageManager().getLaunchIntentForPackage(ANDROID_TV_LIVE_CHANNELS);
+            return i;
+        } else if(isPackageInstalled(SONY_LIVE_CHANNELS, mActivity)) {
+            Intent i = mActivity.getPackageManager().getLaunchIntentForPackage(SONY_LIVE_CHANNELS);
             return i;
         }
         return null;

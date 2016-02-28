@@ -24,8 +24,8 @@ android {
         applicationId "com.felkertech.sample.channelsurfer"
         minSdkVersion 21
         targetSdkVersion 23
-        versionCode 3
-        versionName "0.2.6"
+        versionCode 4
+        versionName "0.2.8"
     }
     buildTypes {
         release {

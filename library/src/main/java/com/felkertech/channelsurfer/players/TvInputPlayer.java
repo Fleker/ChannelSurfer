@@ -552,6 +552,19 @@ public class TvInputPlayer implements TextRenderer {
         return uri.buildUpon().path(parameters[0]).build();
     }
 
+    /**
+     * Returns the current position of the media in milliseconds, if applicable
+     * @return
+     */
+    public long getCurrentPosition() {
+        try {
+            return mPlayer.getCurrentPosition();
+        } catch(Exception e) {
+            Log.e(TAG, e.getMessage());
+            return -1;
+        }
+    }
+
     public interface Callback {
         void onPrepared();
         void onPlayerStateChanged(boolean playWhenReady, int state);

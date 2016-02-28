@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.Surface;
 import android.view.View;
 
+import com.felkertech.channelsurfer.TimeShiftable;
 import com.felkertech.channelsurfer.players.TvInputPlayer;
 import com.felkertech.channelsurfer.players.WebInputPlayer;
 import com.google.android.exoplayer.DummyTrackRenderer;

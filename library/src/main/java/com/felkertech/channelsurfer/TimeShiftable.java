@@ -29,7 +29,7 @@ public interface TimeShiftable {
 
     /**
      * Returns the current playback position, in milliseconds since the unix epoch
-     * @return
+     * @return milliseconds
      */
     long mediaGetCurrentMs();
 

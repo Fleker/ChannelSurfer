@@ -144,14 +144,14 @@ public class SampleTvInputProvider extends MultimediaInputProvider {
 
         //Only my local channels will have the ability to be time shifted, so I should update that every tuning.
         //Timeshifting only works for API >= 23
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        /*if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (isLocal()) {
                 getSession().notifyTimeShiftStatusChanged(TvInputManager.TIME_SHIFT_STATUS_AVAILABLE);
             } else {
                 //If it's not a local channel, I cannot pause or seek in the program
                 getSession().notifyTimeShiftStatusChanged(TvInputManager.TIME_SHIFT_STATUS_UNAVAILABLE);
             }
-        }
+        }*/
 
         play(getProgramRightNow(channel).getInternalProviderData());
         if(currentChannel.getNumber().equals("4")) {

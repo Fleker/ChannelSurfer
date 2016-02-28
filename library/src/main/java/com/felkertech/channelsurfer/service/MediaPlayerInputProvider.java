@@ -50,7 +50,7 @@ public abstract class MediaPlayerInputProvider extends TvInputProvider
 
     @Override
     public void onMediaSeekTo(long timeMs) {
-        mediaPlayer.seekTo((int) (mediaGetCurrentMs() - timeMs));
+        mediaPlayer.seekTo((int) (timeMs - mediaGetStartMs()));
     }
 
     @Override
@@ -64,7 +64,7 @@ public abstract class MediaPlayerInputProvider extends TvInputProvider
 
     @Override
     public long mediaGetCurrentMs() {
-        return new Date().getTime();
+        return mediaPlayer.getCurrentPosition()+mediaGetStartMs();
     }
 
     @Override

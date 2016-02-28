@@ -9,7 +9,12 @@ import android.media.tv.TvContract;
 import android.media.tv.TvInputManager;
 import android.media.tv.TvInputService;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.Surface;
 import android.view.View;
@@ -19,6 +24,7 @@ import com.felkertech.channelsurfer.R;
 import com.felkertech.channelsurfer.TimeShiftable;
 import com.felkertech.channelsurfer.model.Channel;
 
+import java.sql.Time;
 import java.util.Date;
 
 /**
@@ -33,7 +39,10 @@ public class SimpleSessionImpl extends TvInputService.Session {
     SimpleSessionImpl(TvInputProvider tvInputProvider) {
         super(tvInputProvider);
         this.tvInputProvider = tvInputProvider;
+        Log.d(TAG, "Time shiftable? "+tvInputProvider.getClass().getSimpleName());
+        Log.d(TAG, "Time shiftable? "+(tvInputProvider instanceof TimeShiftable) + " && "+ (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && tvInputProvider instanceof TimeShiftable) {
+            Log.d(TAG, "Notifying that we can time shift");
             notifyTimeShiftStatusChanged(TvInputManager.TIME_SHIFT_STATUS_AVAILABLE);
         }
     }
@@ -62,64 +71,26 @@ public class SimpleSessionImpl extends TvInputService.Session {
         return tvInputProvider.onCreateOverlayView();
     }
 
-    private TvContentRating blocked;
+//    private TvContentRating blocked;
     protected Date lastTune;
     @Override
     public boolean onTune(Uri channelUri) {
-        blocked = null; //Reset our channel blocking until we check again
         lastTune = new Date();
         notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_TUNING);
         setOverlayViewEnabled(true);
-        Log.d(TAG, "Tuning to " + channelUri.toString());
-        String[] projection = {TvContract.Channels.COLUMN_DISPLAY_NAME, TvContract.Channels.COLUMN_ORIGINAL_NETWORK_ID,
-                TvContract.Channels.COLUMN_SERVICE_ID, TvContract.Channels.COLUMN_TRANSPORT_STREAM_ID,
-                TvContract.Channels.COLUMN_INPUT_ID, TvContract.Channels.COLUMN_DISPLAY_NUMBER, TvContract.Channels._ID};
-        //Now look up this channel in the DB
-        try (Cursor cursor = tvInputProvider.getContentResolver().query(channelUri, projection, null, null, null)) {
-            if (cursor == null || cursor.getCount() == 0) {
-                return false;
-            }
-            cursor.moveToNext();
-            Log.d(TAG, "Tune to "+cursor.getInt(cursor.getColumnIndex(TvContract.Channels._ID)));
-            Log.d(TAG, "And toon 2 "+channelUri);
-            Channel channel = new Channel()
-                    .setNumber(cursor.getString(cursor.getColumnIndex(TvContract.Channels.COLUMN_DISPLAY_NUMBER)))
-                    .setName(cursor.getString(cursor.getColumnIndex(TvContract.Channels.COLUMN_DISPLAY_NAME)))
-                    .setOriginalNetworkId(cursor.getInt(cursor.getColumnIndex(TvContract.Channels.COLUMN_ORIGINAL_NETWORK_ID)))
-                    .setTransportStreamId(cursor.getInt(cursor.getColumnIndex(TvContract.Channels.COLUMN_TRANSPORT_STREAM_ID)))
-                    .setServiceId(cursor.getInt(cursor.getColumnIndex(TvContract.Channels.COLUMN_SERVICE_ID)))
-                    .setChannelId(cursor.getInt(cursor.getColumnIndex(TvContract.Channels._ID)))
-                    .setVideoHeight(1080)
-                    .setVideoWidth(1920);
-            this.currentChannel = channel;
-            TvInputManager mTvInputManager = (TvInputManager) tvInputProvider.getApplicationContext().getSystemService(Context.TV_INPUT_SERVICE);
-            if(tvInputProvider.getApplicationContext().getResources().getBoolean(R.bool.channel_surfer_lifecycle_toasts))
-                Toast.makeText(tvInputProvider.getApplicationContext(), "Parental controls enabled? "+mTvInputManager.isParentalControlsEnabled(), Toast.LENGTH_SHORT).show();
-            if(mTvInputManager.isParentalControlsEnabled()) {
-                TvContentRating blockedRating = null;
-                for(int i=0;i<tvInputProvider.getProgramRightNow(channel).getContentRatings().length;i++) {
-                    blockedRating = (mTvInputManager.isRatingBlocked(tvInputProvider.getProgramRightNow(channel).getContentRatings()[i]) && blockedRating == null)?tvInputProvider.getProgramRightNow(channel).getContentRatings()[i]:null;
-                }
-                if(tvInputProvider.getApplicationContext().getResources().getBoolean(R.bool.channel_surfer_lifecycle_toasts))
-                    Toast.makeText(tvInputProvider.getApplicationContext(), "Is channel blocked w/ "+blockedRating+"? Only if not null", Toast.LENGTH_SHORT).show();
-                blocked = blockedRating;
-                if(blockedRating != null) {
-                    notifyContentBlocked(blockedRating);
-                } else {
-                    notifyContentAllowed();
-                }
-            }
-            return tvInputProvider.onTune(channel);
-        } catch (Exception e) {
-            Log.e(TAG, "Tuning error");
-            if(tvInputProvider.getApplicationContext().getResources().getBoolean(R.bool.channel_surfer_lifecycle_toasts))
-                Toast.makeText(tvInputProvider.getApplicationContext(), "There's an issue w/ tuning: "+e.getMessage(), Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        }
-        return false;
+        new TuningTask().execute(channelUri, this);
+        return true;
     }
-    private boolean isBlocked() {
-        return blocked!=null;
+//    private boolean isBlocked() {
+//        return blocked!=null;
+//    }
+
+    @Override
+    public void onUnblockContent(TvContentRating unblockedRating) {
+        super.onUnblockContent(unblockedRating);
+        if(tvInputProvider.getApplicationContext().getResources().getBoolean(R.bool.channel_surfer_lifecycle_toasts))
+            Toast.makeText(tvInputProvider.getApplicationContext(), "Unblocked "+unblockedRating.flattenToString(), Toast.LENGTH_SHORT).show();
+        notifyContentAllowed();
     }
 
     @Override
@@ -191,6 +162,96 @@ public class SimpleSessionImpl extends TvInputService.Session {
             }
         } else {
             return -1;
+        }
+    }
+
+    /**
+     * This AsyncTask is used to do tuning operations in the background in order to reduce the load
+     * on the main UI thread. The TuningTask takes in two key parameters in the doInBackground method:
+     *   * Uri channelUri: This is the URI corresponding to the channel you're tuning
+     *   * SimpleSessionImpl session: `this`, which is used to set variables in the main class
+     */
+    private class TuningTask extends AsyncTask<Object, Void, Void> {
+        Channel channel;
+        @Override
+        protected Void doInBackground(Object... params) {
+            Uri channelUri = (Uri) params[0];
+            SimpleSessionImpl session = (SimpleSessionImpl) params[1];
+            TvContentRating blocked = null; //Reset our channel blocking until we check again
+            Log.d(TAG, "Tuning to " + channelUri.toString());
+            String[] projection = {TvContract.Channels.COLUMN_DISPLAY_NAME, TvContract.Channels.COLUMN_ORIGINAL_NETWORK_ID,
+                    TvContract.Channels.COLUMN_SERVICE_ID, TvContract.Channels.COLUMN_TRANSPORT_STREAM_ID,
+                    TvContract.Channels.COLUMN_INPUT_ID, TvContract.Channels.COLUMN_DISPLAY_NUMBER, TvContract.Channels._ID};
+            //Now look up this channel in the DB
+            try (Cursor cursor = tvInputProvider.getContentResolver().query(channelUri, projection, null, null, null)) {
+                if (cursor == null || cursor.getCount() == 0) {
+                    return null;
+                }
+                cursor.moveToNext();
+                Log.d(TAG, "Tune to "+cursor.getInt(cursor.getColumnIndex(TvContract.Channels._ID)));
+                Log.d(TAG, "And toon 2 "+channelUri);
+                channel = new Channel()
+                        .setNumber(cursor.getString(cursor.getColumnIndex(TvContract.Channels.COLUMN_DISPLAY_NUMBER)))
+                        .setName(cursor.getString(cursor.getColumnIndex(TvContract.Channels.COLUMN_DISPLAY_NAME)))
+                        .setOriginalNetworkId(cursor.getInt(cursor.getColumnIndex(TvContract.Channels.COLUMN_ORIGINAL_NETWORK_ID)))
+                        .setTransportStreamId(cursor.getInt(cursor.getColumnIndex(TvContract.Channels.COLUMN_TRANSPORT_STREAM_ID)))
+                        .setServiceId(cursor.getInt(cursor.getColumnIndex(TvContract.Channels.COLUMN_SERVICE_ID)))
+                        .setChannelId(cursor.getInt(cursor.getColumnIndex(TvContract.Channels._ID)))
+                        .setVideoHeight(1080)
+                        .setVideoWidth(1920);
+                session.currentChannel = channel;
+                TvInputManager mTvInputManager = (TvInputManager) tvInputProvider.getApplicationContext().getSystemService(Context.TV_INPUT_SERVICE);
+                sendToast("Parental controls enabled? "+mTvInputManager.isParentalControlsEnabled());
+                if(mTvInputManager.isParentalControlsEnabled()) {
+                    TvContentRating blockedRating = null;
+                    for(int i=0;i<tvInputProvider.getProgramRightNow(channel).getContentRatings().length;i++) {
+                        blockedRating = (mTvInputManager.isRatingBlocked(tvInputProvider.getProgramRightNow(channel).getContentRatings()[i]) && blockedRating == null)?tvInputProvider.getProgramRightNow(channel).getContentRatings()[i]:null;
+                    }
+                    sendToast("Is channel blocked w/ "+blockedRating+"? Only if not null");
+                    blocked = blockedRating;
+                    if(blockedRating != null) {
+                        notifyContentBlocked(blockedRating);
+                    } else {
+                        notifyContentAllowed();
+                    }
+                }
+                Bundle b = new Bundle();
+                b.putBoolean("tune", true);
+                Message complete = new Message();
+                complete.setData(b);
+                toaster.sendMessage(complete);
+            } catch (Exception e) {
+                Log.e(TAG, "Tuning error");
+                sendToast("There's an issue w/ tuning: "+e.getMessage());
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        Handler toaster = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                if(msg.getData().getBoolean("tune")) {
+                    tvInputProvider.onTune(channel);
+                } else {
+                    if (tvInputProvider.getApplicationContext().getResources().getBoolean(R.bool.channel_surfer_lifecycle_toasts))
+                        Toast.makeText(tvInputProvider.getApplicationContext(), msg.getData().getString("msg"), Toast.LENGTH_SHORT).show();
+                }
+            }
+        };
+
+        private void sendToast(String msg) {
+            Bundle b = new Bundle();
+            b.putString("msg", msg);
+            Message m = new Message();
+            m.setData(b);
+            toaster.sendMessage(m);
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
         }
     }
 }

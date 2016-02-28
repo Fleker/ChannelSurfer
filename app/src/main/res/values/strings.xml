@@ -3,4 +3,8 @@
     <string name="tv_input_activity">com.felkertech.sample.channelsurfer.SampleTvSetup</string>
     <string name="title_activity_sample_tv_setup">SampleTvSetup</string>
     <string name="title_activity_main">MainActivity</string>
+
+    <string name="channel_surfer_title">Welcome to ChannelSurfer</string>
+    <string name="channel_surfer_description">ChannelSurfer is a library which makes it easy for developers to create their own live channels. Learn more on GitHub: http://github.com/fleker/channelsurfer</string>
+    <string name="channel_surfer_get_started">If you have the Live Channels app installed, click below to get started!</string>
 </resources>
