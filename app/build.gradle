@@ -24,8 +24,8 @@ android {
         applicationId "com.felkertech.sample.channelsurfer"
         minSdkVersion 21
         targetSdkVersion 23
-        versionCode 4
-        versionName "0.2.8"
+        versionCode 5
+        versionName "0.2.9"
     }
     buildTypes {
         release {
@@ -40,6 +40,7 @@ dependencies {
     compile project(':library')
     compile 'com.android.support:recyclerview-v7:23.1.1'
     compile 'com.android.support:leanback-v17:23.1.1'
+    compile 'com.github.fleker:settingsmanager:1.2.1'
     compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
         transitive = true;
     }

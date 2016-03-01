@@ -38,10 +38,14 @@
         android:layout_marginBottom="4dp"
         android:text="@string/channel_surfer_get_started"
         android:layout_height="wrap_content" />
-    <Button
-        android:layout_width="320dp"
-        android:id="@+id/live"
-        android:background="@color/md_blue_500"
-        android:text="Go to Live Channels"
-        android:layout_height="wrap_content" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:layout_width="320dp"
+            android:id="@+id/live"
+            android:background="@color/md_blue_500"
+            android:text="Go to Live Channels"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
 </LinearLayout>
