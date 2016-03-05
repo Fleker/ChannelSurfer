@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.PlaybackParams;
 import android.media.tv.TvContentRating;
+import android.media.tv.TvContract;
 import android.media.tv.TvInputManager;
 import android.net.Uri;
 import android.os.Build;
@@ -34,25 +35,29 @@ public class SampleTvInputProvider extends MultimediaInputProvider {
     @Override
     public void onCreate() {
         super.onCreate();
-        Toast.makeText(SampleTvInputProvider.this, "onCreate called", Toast.LENGTH_SHORT).show();
+        if(getResources().getBoolean(R.bool.channel_surfer_lifecycle_toasts))
+            Toast.makeText(SampleTvInputProvider.this, "onCreate called", Toast.LENGTH_SHORT).show();
         Log.d(TAG, "onCreate called");
     }
     @Override
     public void onRebind(Intent i) {
         super.onRebind(i);
-        Toast.makeText(SampleTvInputProvider.this, "onRebind called", Toast.LENGTH_SHORT).show();
+        if(getResources().getBoolean(R.bool.channel_surfer_lifecycle_toasts))
+            Toast.makeText(SampleTvInputProvider.this, "onRebind called", Toast.LENGTH_SHORT).show();
         Log.d(TAG, "onRebind called");
     }
     @Override
     public void onRelease() {
         super.onRelease();
-        Toast.makeText(SampleTvInputProvider.this, "onRelease called", Toast.LENGTH_SHORT).show();
+        if(getResources().getBoolean(R.bool.channel_surfer_lifecycle_toasts))
+            Toast.makeText(SampleTvInputProvider.this, "onRelease called", Toast.LENGTH_SHORT).show();
         Log.d(TAG, "onRelease called");
     }
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Toast.makeText(SampleTvInputProvider.this, "onDestroy called", Toast.LENGTH_SHORT).show();
+        if(getResources().getBoolean(R.bool.channel_surfer_lifecycle_toasts))
+            Toast.makeText(SampleTvInputProvider.this, "onDestroy called", Toast.LENGTH_SHORT).show();
         Log.d(TAG, "onDestroy called");
     }
 
@@ -61,18 +66,18 @@ public class SampleTvInputProvider extends MultimediaInputProvider {
         Log.d(TAG, "Get all channels");
 //        Toast.makeText(SampleTvInputProvider.this, "Get all channels", Toast.LENGTH_SHORT).show();
         List<Channel> channels = new ArrayList<>();
-        channels.add(new Channel()
+/*        channels.add(new Channel()
             .setName("Time.Is")
-            .setNumber("1"));
+            .setNumber("1"));*/
         channels.add(new Channel()
             .setName("Big Buck Bunny")
             .setNumber("2"));
-        channels.add(new Channel()
+        /*channels.add(new Channel()
             .setName("androidtv.news")
             .setNumber("3"));
         channels.add(new Channel()
             .setName("Dance Party")
-            .setNumber("4"));
+            .setNumber("4"));*/
         Log.d(TAG, "Get channels");
         return channels;
     }
@@ -103,6 +108,7 @@ public class SampleTvInputProvider extends MultimediaInputProvider {
                         .setInternalProviderData("http://184.72.239.149/vod/smil:BigBuckBunny.smil/playlist.m3u8")
                         .setVideoWidth(1920)
                         .setVideoHeight(1080)
+                        .setCanonicalGenres(new String[] {TvContract.Programs.Genres.MOVIES})
                         .setStartTimeUtcMillis((getNearestHour() + SEGMENT * i))
                         .setEndTimeUtcMillis((getNearestHour() + SEGMENT * (i + 1)))
                         .build();
@@ -110,7 +116,7 @@ public class SampleTvInputProvider extends MultimediaInputProvider {
                 p = new Program.Builder(getGenericProgram(channelInfo))
                         .setTitle("Sample Video")
                         .setDescription("Visit http://androidtv.news, the one-stop shop for everything Android TV")
-                        .setInternalProviderData(getLocalVideoUri(SampleTvSetup.LOCAL_FILES_FOLDER+"/androidtvnews.mp4")) //b/c getPackageName is broken
+                        .setInternalProviderData(getLocalVideoUri(SampleTvSetup.LOCAL_FILES_FOLDER+"/androidtvnews.mp4"))
                         .setVideoWidth(1600)
                         .setVideoHeight(900)
                         .setStartTimeUtcMillis((getNearestHour() + SEGMENT * i))
@@ -137,7 +143,8 @@ public class SampleTvInputProvider extends MultimediaInputProvider {
     public boolean onTune(Channel channel) {
         this.currentChannel = channel;
         Program p = getProgramRightNow(channel);
-        Toast.makeText(SampleTvInputProvider.this, "Tuning to "+channel.getName()+" with program "+p.getTitle()+" at "+p.getInternalProviderData(), Toast.LENGTH_SHORT).show();
+        if(getResources().getBoolean(R.bool.channel_surfer_lifecycle_toasts))
+            Toast.makeText(SampleTvInputProvider.this, "Tuning to "+channel.getName()+" with program "+p.getTitle()+" at "+p.getInternalProviderData(), Toast.LENGTH_SHORT).show();
         Log.d(TAG, "Tuning to " + channel.getName());
         Log.d(TAG, "Playing "+p.getTitle());
         Log.d(TAG, "Play the video "+p.getInternalProviderData());
@@ -169,7 +176,8 @@ public class SampleTvInputProvider extends MultimediaInputProvider {
 
     @Override
     public View onCreateVideoView() {
-        Toast.makeText(SampleTvInputProvider.this, "onCreateVideoView", Toast.LENGTH_SHORT).show();
+        if(getResources().getBoolean(R.bool.channel_surfer_lifecycle_toasts))
+            Toast.makeText(SampleTvInputProvider.this, "onCreateVideoView", Toast.LENGTH_SHORT).show();
         Log.d(TAG, "Create video view");
         if(currentChannel != null && currentChannel.getNumber().equals("4")) {
             TextView tv = new TextView(this);
