@@ -67,12 +67,6 @@ public class TvInputPlayer implements TextRenderer {
     public static final int SOURCE_TYPE_MPEG_DASH = 2;
     public static final int SOURCE_TYPE_EXTRACTOR = 3; //MPEG-TS, MP3, etc.
 
-    public static final int STATE_IDLE = ExoPlayer.STATE_IDLE;
-    public static final int STATE_PREPARING = ExoPlayer.STATE_PREPARING;
-    public static final int STATE_BUFFERING = ExoPlayer.STATE_BUFFERING;
-    public static final int STATE_READY = ExoPlayer.STATE_READY;
-    public static final int STATE_ENDED = ExoPlayer.STATE_ENDED;
-
     private static final int RENDERER_COUNT = 3;
     private static final int MIN_BUFFER_MS = 1000;
     private static final int MIN_REBUFFER_MS = 5000;
@@ -82,7 +76,6 @@ public class TvInputPlayer implements TextRenderer {
 
 
     private static final int VIDEO_BUFFER_SEGMENTS = 200;
-    private static final int AUDIO_BUFFER_SEGMENTS = 60;
     private static final int LIVE_EDGE_LATENCY_MS = 30000;
 
     private static final int NO_TRACK_SELECTED = -1;
@@ -205,12 +198,9 @@ public class TvInputPlayer implements TextRenderer {
             }
         } else if (sourceType == SOURCE_TYPE_HLS) {
             Log.d(TAG, "Prep HLS");
-//            final String userAgent = getUserAgent(context);
             HlsPlaylistParser parser = new HlsPlaylistParser();
-//            UriDataSource dataSource = new DefaultUriDataSource(context, userAgent);
             final ManifestFetcher<HlsPlaylist> playlistFetcher =
                     new ManifestFetcher<HlsPlaylist>(uri.toString(), dataSource, parser);
-//                    new ManifestFetcher<HlsPlaylist>(parser, uri.toString(), uri.toString(), userAgent);
             playlistFetcher.singleLoad(mHandler.getLooper(),
                     new ManifestFetcher.ManifestCallback<HlsPlaylist>() {
                         @Override
@@ -219,9 +209,6 @@ public class TvInputPlayer implements TextRenderer {
                             DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
                             DataSource dataSource = new DefaultUriDataSource(context, userAgent);
 
-                            /*HlsChunkSource chunkSource = new HlsChunkSource(dataSource,
-                                    uri.toString(), hlsPlaylist, bandwidthMeter, null,
-                                    HlsChunkSource.ADAPTIVE_MODE_SPLICE, null);*/
                             HlsChunkSource chunkSource = new HlsChunkSource(dataSource, uri.toString(),
                                     hlsPlaylist, bandwidthMeter,
                                     null, HlsChunkSource.ADAPTIVE_MODE_SPLICE);
@@ -247,7 +234,6 @@ public class TvInputPlayer implements TextRenderer {
                             Log.e(TAG, "onSingleManifestError(IOException)");
                             Log.e(TAG, e.getMessage() + "");
                             e.printStackTrace();
-//                            Toast.makeText(context, e.getMessage()+"", Toast.LENGTH_SHORT).show();
                             try {
                                 prepare(context, originalUri, SOURCE_TYPE_MPEG_DASH);
                             } catch (Exception e1) {
@@ -347,19 +333,13 @@ public class TvInputPlayer implements TextRenderer {
                             }
 
                             // Build the audio renderer.
-                            //final MultiTrackChunkSource audioChunkSource;
                             if (audioChunkSourceList.isEmpty()) {
                                 audioRenderer = new DummyTrackRenderer();
                             } else {
-                                //audioChunkSource = new MultiTrackChunkSource(audioChunkSourceList);
-                                //SampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource,
-                                //        loadControl, AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE);
-                                //audioRenderer = new MediaCodecAudioTrackRenderer(audioSampleSource);
                                 TvTrackInfo[] tracks = new TvTrackInfo[audioTrackList.size()];
                                 audioTrackList.toArray(tracks);
                                 mTvTracks[TvTrackInfo.TYPE_AUDIO] = tracks;
                                 mSelectedTvTracks[TvTrackInfo.TYPE_AUDIO] = 0;
-                                //multiTrackChunkSources[TvTrackInfo.TYPE_AUDIO] = audioChunkSource;
                             }
 
                             // Build the text renderer.
@@ -384,8 +364,7 @@ public class TvInputPlayer implements TextRenderer {
         } else if(sourceType == SOURCE_TYPE_EXTRACTOR) {
             Log.d(TAG, "Prep Extractor");
             Log.d(TAG, "Maybe? Fingers crossed.");
-           /* throw new NotValidExoPlayerStream();
-        } else {*/
+
             Log.d(TAG, originalUri.toString());
             Log.d(TAG, uri.toString());
             int BUFFER_SEGMENT_SIZE = 64 * 1024;
@@ -405,11 +384,7 @@ public class TvInputPlayer implements TextRenderer {
                 MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource);
                 TrackRenderer textRenderer = new DummyTrackRenderer();
                 // Invoke the callback.
-            /*TrackRenderer[] renderers = new TrackRenderer[DemoPlayer.RENDERER_COUNT];
-            renderers[DemoPlayer.TYPE_VIDEO] = videoRenderer;
-            renderers[DemoPlayer.TYPE_AUDIO] = audioRenderer;
-            renderers[DemoPlayer.TYPE_TEXT] = textRenderer;*/
-//            mPlayer.onRenderers(renderers, bandwidthMeter);
+
                 this.videoRenderer = videoRenderer;
                 this.audioRenderer = audioRenderer;
                 this.textRenderer = textRenderer;
@@ -417,9 +392,7 @@ public class TvInputPlayer implements TextRenderer {
             } catch(Exception e) {
 
             }
-        } /*else {
-            throw new IllegalArgumentException("Unknown source type: " + sourceType);
-        }*/
+        }
     }
 
     public TvTrackInfo[] getTracks(int trackType) {

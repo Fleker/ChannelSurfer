@@ -6,7 +6,7 @@ import android.media.tv.TvContentRating;
 import android.media.tv.TvContract;
 import android.text.TextUtils;
 
-import com.felkertech.channelsurfer.TvContractUtils;
+import com.felkertech.channelsurfer.utils.TvContractUtils;
 
 import java.util.Arrays;
 import java.util.Objects;

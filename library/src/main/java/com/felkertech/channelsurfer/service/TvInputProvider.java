@@ -242,47 +242,9 @@ public abstract class TvInputProvider extends TvInputService {
             for(Program p: programs) {
                 if(p.getStartTimeUtcMillis() < new Date().getTime()) {
                     currentProgram = p;
-                    //Log.d(TAG, p.toString());
                 }
             }
-            //Log.d(TAG, "OK");
             return currentProgram;
-
-            /*Uri channelsQuery = TvContract.buildChannelsUriForInput(channels);
-            Cursor cursor = null;
-            try {
-                cursor = getApplicationContext().getContentResolver().query(channelsQuery, null, null, null, null);
-                while(cursor != null && cursor.moveToNext()) {
-                    Channel cursorChannel = new Channel()
-                            .setNumber(cursor.getString(cursor.getColumnIndex(TvContract.Channels.COLUMN_DISPLAY_NUMBER)))
-                            .setName(cursor.getString(cursor.getColumnIndex(TvContract.Channels.COLUMN_DISPLAY_NAME)))
-                            .setOriginalNetworkId(cursor.getInt(cursor.getColumnIndex(TvContract.Channels.COLUMN_ORIGINAL_NETWORK_ID)))
-                            .setTransportStreamId(cursor.getInt(cursor.getColumnIndex(TvContract.Channels.COLUMN_TRANSPORT_STREAM_ID)))
-                            .setServiceId(cursor.getInt(cursor.getColumnIndex(TvContract.Channels.COLUMN_SERVICE_ID)))
-                            .setVideoHeight(1080)
-                            .setVideoWidth(1920);
-                    if(cursorChannel.getName().equals(channel.getName())) {
-                        //!
-                        List<Program> programs = getPrograms(getApplicationContext(),
-                                TvContract.buildChannelUri(cursor.getInt(cursor.getColumnIndex(TvContract.Channels._ID))));
-                        Log.d(TAG, "Program from channel "+TvContract.buildChannelUri(cursor.getInt(cursor.getColumnIndex(TvContract.Channels._ID))));
-                        Log.d(TAG, "Program from chanel "+cursor.getInt(cursor.getColumnIndex(TvContract.Channels._ID)));
-                        Program currentProgram = null;
-                        for(Program p: programs) {
-                            if(p.getStartTimeUtcMillis() < new Date().getTime()) {
-                                currentProgram = p;
-                                //Log.d(TAG, p.toString());
-                            }
-                        }
-                        //Log.d(TAG, "OK");
-                        return currentProgram;
-                    }
-                }
-            } finally {
-                if (cursor != null) {
-                    cursor.close();
-                }
-            }*/
 
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();

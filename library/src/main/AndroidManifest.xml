@@ -61,9 +61,9 @@
                 android:resource="@xml/channel_surfer_authenticator" />
         </service>
 
-        <meta-data
+        <!--<meta-data
             android:name="com.google.android.gms.car.application"
-            android:resource="@xml/automotive_app_desc" />
+            android:resource="@xml/automotive_app_desc" />-->
         <!--
  Main music service, provides media browsing and media playback services to
          consumers through MediaBrowserService and MediaSession. Consumers connect to it through

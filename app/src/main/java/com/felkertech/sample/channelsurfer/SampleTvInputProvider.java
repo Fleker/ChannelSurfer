@@ -2,28 +2,21 @@ package com.felkertech.sample.channelsurfer;
 
 import android.content.Context;
 import android.content.Intent;
-import android.media.PlaybackParams;
 import android.media.tv.TvContentRating;
 import android.media.tv.TvContract;
-import android.media.tv.TvInputManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.felkertech.channelsurfer.TimeShiftable;
 import com.felkertech.channelsurfer.model.Channel;
 import com.felkertech.channelsurfer.model.Program;
 import com.felkertech.channelsurfer.service.MultimediaInputProvider;
-import com.felkertech.channelsurfer.service.WebViewInputProvider;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -66,18 +59,18 @@ public class SampleTvInputProvider extends MultimediaInputProvider {
         Log.d(TAG, "Get all channels");
 //        Toast.makeText(SampleTvInputProvider.this, "Get all channels", Toast.LENGTH_SHORT).show();
         List<Channel> channels = new ArrayList<>();
-/*        channels.add(new Channel()
+        channels.add(new Channel()
             .setName("Time.Is")
-            .setNumber("1"));*/
+            .setNumber("1"));
         channels.add(new Channel()
             .setName("Big Buck Bunny")
             .setNumber("2"));
-        /*channels.add(new Channel()
+        channels.add(new Channel()
             .setName("androidtv.news")
             .setNumber("3"));
         channels.add(new Channel()
             .setName("Dance Party")
-            .setNumber("4"));*/
+            .setNumber("4"));
         Log.d(TAG, "Get channels");
         return channels;
     }
@@ -148,18 +141,6 @@ public class SampleTvInputProvider extends MultimediaInputProvider {
         Log.d(TAG, "Tuning to " + channel.getName());
         Log.d(TAG, "Playing "+p.getTitle());
         Log.d(TAG, "Play the video "+p.getInternalProviderData());
-
-        //Only my local channels will have the ability to be time shifted, so I should update that every tuning.
-        //Timeshifting only works for API >= 23
-        /*if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (isLocal()) {
-                getSession().notifyTimeShiftStatusChanged(TvInputManager.TIME_SHIFT_STATUS_AVAILABLE);
-            } else {
-                //If it's not a local channel, I cannot pause or seek in the program
-                getSession().notifyTimeShiftStatusChanged(TvInputManager.TIME_SHIFT_STATUS_UNAVAILABLE);
-            }
-        }*/
-
         play(getProgramRightNow(channel).getInternalProviderData());
         if(currentChannel.getNumber().equals("4")) {
             Handler h = new Handler() {

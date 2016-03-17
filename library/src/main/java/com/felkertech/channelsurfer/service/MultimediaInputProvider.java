@@ -6,7 +6,6 @@ import android.util.Log;
 import android.view.Surface;
 import android.view.View;
 
-import com.felkertech.channelsurfer.TimeShiftable;
 import com.felkertech.channelsurfer.players.TvInputPlayer;
 import com.felkertech.channelsurfer.players.WebInputPlayer;
 import com.google.android.exoplayer.DummyTrackRenderer;
@@ -14,12 +13,9 @@ import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
-import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
 import com.google.android.exoplayer.extractor.mp3.Mp3Extractor;
 import com.google.android.exoplayer.extractor.mp4.Mp4Extractor;
-import com.google.android.exoplayer.text.TextTrackRenderer;
-import com.google.android.exoplayer.upstream.AssetDataSource;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.DefaultUriDataSource;
@@ -58,9 +54,6 @@ public abstract class MultimediaInputProvider extends ExoPlayerInputProvider {
      * @param url A web url
      */
     public void loadUrl(String url) {
-        /*if(webInputPlayer == null)
-            webInputPlayer = new WebInputPlayer(getApplicationContext());
-        webInputPlayer.loadUrl(url);*/
         Log.d(TAG, "Load url "+url);
         URL = url;
     }
@@ -94,16 +87,11 @@ public abstract class MultimediaInputProvider extends ExoPlayerInputProvider {
 
             @Override
             public void onPlayerError(ExoPlaybackException e) {
-//                Log.e(TAG, "Callback2");
                 Log.e(TAG, e.getMessage()+"");
                 if(e.getMessage().contains("Extractor")) {
                     Log.d(TAG, "Cannot play the stream, try loading it as a website");
                     Log.d(TAG, "Open "+uri);
                     //Pretend this is a website
-                    /*isWeb = true;
-                    loadUrl(uri);
-                    notifyVideoAvailable();
-                    setOverlayEnabled(true);*/
                     loadUrl(uri);
                     isWeb = true;
                     setOverlayEnabled(false);

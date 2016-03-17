@@ -1,4 +1,4 @@
-package com.felkertech.channelsurfer;
+package com.felkertech.channelsurfer.utils;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;

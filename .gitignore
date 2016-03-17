@@ -37,6 +37,7 @@ proguard/
 
 ## Directory-based project format:
 .idea/
+gradle/
 
 ## File-based project format:
 *.ipr
