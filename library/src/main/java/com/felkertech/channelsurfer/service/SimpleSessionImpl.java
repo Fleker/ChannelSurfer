@@ -175,6 +175,7 @@ public class SimpleSessionImpl extends TvInputService.Session {
         Channel channel;
         @Override
         protected Void doInBackground(Object... params) {
+            notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_BUFFERING);
             Uri channelUri = (Uri) params[0];
             SimpleSessionImpl session = (SimpleSessionImpl) params[1];
             TvContentRating blocked = null; //Reset our channel blocking until we check again

@@ -66,18 +66,18 @@ public class SampleTvInputProvider extends MultimediaInputProvider {
         Log.d(TAG, "Get all channels");
 //        Toast.makeText(SampleTvInputProvider.this, "Get all channels", Toast.LENGTH_SHORT).show();
         List<Channel> channels = new ArrayList<>();
-/*        channels.add(new Channel()
+        channels.add(new Channel()
             .setName("Time.Is")
-            .setNumber("1"));*/
+            .setNumber("1"));
         channels.add(new Channel()
             .setName("Big Buck Bunny")
             .setNumber("2"));
-        /*channels.add(new Channel()
+        channels.add(new Channel()
             .setName("androidtv.news")
             .setNumber("3"));
         channels.add(new Channel()
             .setName("Dance Party")
-            .setNumber("4"));*/
+            .setNumber("4"));
         Log.d(TAG, "Get channels");
         return channels;
     }

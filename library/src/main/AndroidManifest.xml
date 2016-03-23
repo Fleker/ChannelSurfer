@@ -76,6 +76,8 @@
                 <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
         </service>
+
+        <activity android:name=".sync.DummyAccountIgnoreActivity"></activity>
     </application>
 
 </manifest>

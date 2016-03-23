@@ -3,12 +3,14 @@ package com.felkertech.channelsurfer.sync;
 import android.accounts.AbstractAccountAuthenticator;
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorResponse;
+import android.accounts.AccountManager;
 import android.accounts.NetworkErrorException;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 
 import com.felkertech.channelsurfer.R;
 
@@ -53,8 +55,12 @@ public class DummyAccountService extends Service {
 
         @Override
         public Bundle addAccount(AccountAuthenticatorResponse accountAuthenticatorResponse,
-                                 String s, String s2, String[] strings, Bundle bundle) throws NetworkErrorException {
-            return null;
+                                 String s, String s2, String[] strings, Bundle options) throws NetworkErrorException {
+            Log.d(TAG, "Trying to add an account");
+            final Intent intent = new Intent(getApplicationContext(), DummyAccountIgnoreActivity.class);
+            final Bundle bundle = new Bundle();
+            bundle.putParcelable(AccountManager.KEY_INTENT, intent);
+            return bundle;
         }
 
         @Override
