@@ -3,7 +3,6 @@ package com.felkertech.channelsurfer.service;
 import android.content.Context;
 import android.database.Cursor;
 import android.media.PlaybackParams;
-import android.media.session.MediaSession;
 import android.media.tv.TvContentRating;
 import android.media.tv.TvContract;
 import android.media.tv.TvInputManager;
@@ -21,10 +20,9 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.felkertech.channelsurfer.R;
-import com.felkertech.channelsurfer.TimeShiftable;
+import com.felkertech.channelsurfer.interfaces.TimeShiftable;
 import com.felkertech.channelsurfer.model.Channel;
 
-import java.sql.Time;
 import java.util.Date;
 
 /**
@@ -71,7 +69,6 @@ public class SimpleSessionImpl extends TvInputService.Session {
         return tvInputProvider.onCreateOverlayView();
     }
 
-//    private TvContentRating blocked;
     protected Date lastTune;
     @Override
     public boolean onTune(Uri channelUri) {
@@ -81,9 +78,6 @@ public class SimpleSessionImpl extends TvInputService.Session {
         new TuningTask().execute(channelUri, this);
         return true;
     }
-//    private boolean isBlocked() {
-//        return blocked!=null;
-//    }
 
     @Override
     public void onUnblockContent(TvContentRating unblockedRating) {

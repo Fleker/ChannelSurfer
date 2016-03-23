@@ -22,6 +22,7 @@ public class SyncUtils {
                 (AccountManager) context.getSystemService(Context.ACCOUNT_SERVICE);
         if (!accountManager.addAccountExplicitly(account, null, null)) {
             Log.w(TAG, "Account already exists.");
+//            return;
         }
         Log.d(TAG, "Set sync with "+inputId);
         ContentResolver.setIsSyncable(account, CONTENT_AUTHORITY, 1);

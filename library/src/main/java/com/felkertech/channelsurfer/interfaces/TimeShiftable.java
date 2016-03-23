@@ -1,4 +1,4 @@
-package com.felkertech.channelsurfer;
+package com.felkertech.channelsurfer.interfaces;
 
 import android.media.PlaybackParams;
 

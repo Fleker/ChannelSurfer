@@ -7,7 +7,7 @@ import android.os.Build;
 import android.util.Log;
 import android.view.Surface;
 
-import com.felkertech.channelsurfer.TimeShiftable;
+import com.felkertech.channelsurfer.interfaces.TimeShiftable;
 import com.felkertech.channelsurfer.players.TvInputPlayer;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;

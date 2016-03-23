@@ -35,7 +35,7 @@ import android.util.LongSparseArray;
 import android.widget.Toast;
 
 import com.felkertech.channelsurfer.utils.LiveChannelsUtils;
-import com.felkertech.channelsurfer.TvContractUtils;
+import com.felkertech.channelsurfer.utils.TvContractUtils;
 import com.felkertech.channelsurfer.model.Channel;
 import com.felkertech.channelsurfer.model.Program;
 import com.felkertech.channelsurfer.service.TvInputProvider;
@@ -156,25 +156,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             updatePrograms(channelUri, programList);
             //Let's double check programs
             Uri programEditor = TvContract.buildProgramsUriForChannel(channelUri);
-
-            //Mass delete and re-insertion
-            /*getContext().getContentResolver().delete(programEditor, null, null);
-            for (Program p : programList) {
-                p.setChannelId(channelMap.keyAt(i)); //Make sure you have the correct channel id value, it seems to be a foreign key
-                Uri insert = getContext().getContentResolver().insert(programEditor, p.toContentValues());
-                Log.d(TAG, (insert == null) + " " + p.toString());
-                if (insert != null)
-                    Log.d(TAG, insert.toString());
-            }*/
-
-            /*Log.d(TAG, programEditor.toString());
-            String[] projection = {TvContract.Programs.COLUMN_TITLE};
-            try (Cursor c = getContext().getContentResolver().query(programEditor, projection, null, null, null)) {
-                Log.d(TAG, "Found " + c.getCount() + " programs");
-                while (c.moveToNext()) {
-                    Log.d(TAG, "Cursor read " + c.getString(c.getColumnIndex(TvContract.Programs.COLUMN_TITLE)));
-                }
-            }*/
         }
         Log.d(TAG, "Sync performed");
     }
@@ -258,7 +239,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                                 .newInsert(TvContract.Programs.CONTENT_URI)
                                 .withValues(newProgram.toContentValues())
                                 .build());
-//                        Log.d(TAG, "Adding in program "+newProgram);
                     }
                     // Throttle the batch operation not to cause TransactionTooLargeException.
                     if (ops.size() > BATCH_OPERATION_COUNT

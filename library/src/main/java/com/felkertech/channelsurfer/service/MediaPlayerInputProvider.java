@@ -6,9 +6,7 @@ import android.media.tv.TvInputManager;
 import android.os.Build;
 import android.view.Surface;
 
-import com.felkertech.channelsurfer.TimeShiftable;
-
-import java.util.Date;
+import com.felkertech.channelsurfer.interfaces.TimeShiftable;
 
 /**
  * Created by guest1 on 1/7/2016.
