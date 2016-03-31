@@ -57,10 +57,20 @@ public class DummyAccountService extends Service {
         public Bundle addAccount(AccountAuthenticatorResponse accountAuthenticatorResponse,
                                  String s, String s2, String[] strings, Bundle options) throws NetworkErrorException {
             Log.d(TAG, "Trying to add an account");
-            final Intent intent = new Intent(getApplicationContext(), DummyAccountIgnoreActivity.class);
-            final Bundle bundle = new Bundle();
-            bundle.putParcelable(AccountManager.KEY_INTENT, intent);
-            return bundle;
+            final AccountManager accountManager = AccountManager.get(getApplicationContext());
+            String ACCOUNT_NAME = getApplicationContext().getString(R.string.app_name);
+            Account[] accounts = accountManager.getAccountsByType(ACCOUNT_NAME);
+            Log.d(TAG, accounts.length+"accounts");
+            Log.d(TAG, accounts[0].toString());
+            if(accounts.length > 0) {
+                final Intent intent = new Intent(getApplicationContext(), DummyAccountIgnoreActivity.class);
+                intent.putExtra(DummyAccountIgnoreActivity.INTENT_ACTION, DummyAccountIgnoreActivity.ACTION_ADD);
+                final Bundle bundle = new Bundle();
+                bundle.putParcelable(AccountManager.KEY_INTENT, intent);
+                return bundle;
+            } else {
+                return null;
+            }
         }
 
         @Override
@@ -90,6 +100,17 @@ public class DummyAccountService extends Service {
         public Bundle hasFeatures(AccountAuthenticatorResponse accountAuthenticatorResponse,
                                   Account account, String[] strings) throws NetworkErrorException {
             throw new UnsupportedOperationException();
+        }
+        @Override
+        public Bundle getAccountRemovalAllowed(AccountAuthenticatorResponse response,
+                                               Account account) throws NetworkErrorException {
+            final Bundle result = new Bundle();
+//            final Intent intent = new Intent(getApplicationContext(), DummyAccountIgnoreActivity.class);
+//            intent.putExtra(DummyAccountIgnoreActivity.INTENT_ACTION, DummyAccountIgnoreActivity.ACTION_REMOVE);
+            Log.d(TAG, "Somebody is trying to delete this account");
+            result.putBoolean(AccountManager.KEY_BOOLEAN_RESULT, false);
+//            result.putParcelable(AccountManager.KEY_INTENT, intent);
+            return result;
         }
     }
 
