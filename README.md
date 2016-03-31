@@ -8,7 +8,7 @@ As a fan of the feature, I wanted more apps to implement it. However, I knew fir
 
 ChannelSurfer takes care of all these headaches. You can simply use a single class to take care of both the EPG (electronic program guide) and playback. It contains all the boilerplate code and XML files which can simply be imported by:
 
-    compile 'com.github.fleker:channelsurfer:0.2.11'
+    compile 'com.github.fleker:channelsurfer:0.2.12'
     
 ## Manifest Changes
 The necessary permissions are already added to your app, as are a built-in `SyncAdapter` and `DummyAccount` implementation. 
