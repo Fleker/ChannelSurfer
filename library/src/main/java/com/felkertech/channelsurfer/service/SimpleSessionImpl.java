@@ -73,7 +73,8 @@ public class SimpleSessionImpl extends TvInputService.Session {
     @Override
     public boolean onTune(Uri channelUri) {
         lastTune = new Date();
-        notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_TUNING);
+//        notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_TUNING);
+        notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_BUFFERING);
         setOverlayViewEnabled(true);
         new TuningTask().execute(channelUri, this);
         return true;

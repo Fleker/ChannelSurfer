@@ -6,6 +6,7 @@ import android.media.tv.TvContentRating;
 import android.media.tv.TvContract;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
@@ -20,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by guest1 on 1/7/2016.
+ * Created by Nick on 1/7/2016.
  */
 public class SampleTvInputProvider extends MultimediaInputProvider {
     private String TAG = "SampleTvInputProvider";
@@ -31,6 +32,13 @@ public class SampleTvInputProvider extends MultimediaInputProvider {
         if(getResources().getBoolean(R.bool.channel_surfer_lifecycle_toasts))
             Toast.makeText(SampleTvInputProvider.this, "onCreate called", Toast.LENGTH_SHORT).show();
         Log.d(TAG, "onCreate called");
+    }
+    @Override
+    public boolean onUnbind(Intent intent) {
+        if(getResources().getBoolean(R.bool.channel_surfer_lifecycle_toasts)) {
+            Toast.makeText(SampleTvInputProvider.this, "onUnbind called", Toast.LENGTH_SHORT).show();
+        }
+        return super.onUnbind(intent);
     }
     @Override
     public void onRebind(Intent i) {

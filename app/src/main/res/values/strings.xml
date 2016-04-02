@@ -7,4 +7,6 @@
     <string name="channel_surfer_title">Welcome to ChannelSurfer</string>
     <string name="channel_surfer_description">ChannelSurfer is a library which makes it easy for developers to create their own live channels. Learn more on GitHub: http://github.com/fleker/channelsurfer</string>
     <string name="channel_surfer_get_started">If you have the Live Channels app installed, click below to get started!</string>
+
+    <string name="sm_debug">DEBUG</string>
 </resources>
