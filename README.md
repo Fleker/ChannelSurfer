@@ -171,6 +171,12 @@ The `MediaPlayer` class is built-in, but the external <a href='https://github.co
 ### MultimediaInputProvider
 If you plan for your `TvInputService` to use both video streams through ExoPlayer and load websites, you can extend this class. When you start a program through the `play` method, it will play a video or open a website depending on the type of URL passed.
 
+#### Additional APIs
+When running a website, you may want to procedurally input content to get the site to behave in particular ways. There are some APIs that can be used to do this.
+
+* `onWebsiteFinishedLoading` - When the site has loaded entirely, meaning you can start doing stuff with it, this method is called. You can override it to provide functionality. 
+* `runJS(final String script)` - To input data, call the `runJS` method and provide a JS command.
+
 ### StreamingInputProvider
 This is the simplest class, designed for any sort of web URL or web stream. All you have to do is provide a list of channels, making sure you provide a URL in the `setInternalProviderData(String)` method. Program generation and playback are provided. 
 

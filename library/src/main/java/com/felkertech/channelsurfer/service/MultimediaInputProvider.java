@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.util.Log;
 import android.view.Surface;
 import android.view.View;
+import android.webkit.WebView;
 
 import com.felkertech.channelsurfer.players.TvInputPlayer;
 import com.felkertech.channelsurfer.players.WebInputPlayer;
@@ -29,6 +30,7 @@ public abstract class MultimediaInputProvider extends ExoPlayerInputProvider {
     private String TAG = "MultimediaInputProvider";
     private boolean isWeb = false;
     private String URL = "";
+    WebInputPlayer webView;
     @Override
     public View onCreateOverlayView() {
         Log.d(TAG, "Create overlay view. For web? "+isWeb);
@@ -37,10 +39,33 @@ public abstract class MultimediaInputProvider extends ExoPlayerInputProvider {
         } else {
             //Website
             Log.d(TAG, "Load "+URL);
-            WebInputPlayer webView = new WebInputPlayer(getApplicationContext());
+            if(webView == null)
+                webView = new WebInputPlayer(getApplicationContext(), new WebInputPlayer.WebViewListener() {
+                    @Override
+                    public void onPageFinished() {
+                        onWebsiteFinishedLoading();
+                    }
+                });
             webView.load(URL);
             return webView;
         }
+    }
+
+    protected void onWebsiteFinishedLoading() {
+
+    }
+
+    protected void runJS(final String js) {
+        webView.post(new Runnable() {
+            @Override
+            public void run() {
+                if (js.length() < 50)
+                    Log.d(TAG, "Execute " + js);
+                else
+                    Log.d(TAG, "Execute " + js.substring(0, 49));
+                webView.loadUrl("javascript:try { " + js + "} catch(error) { Android.onError(error.message) }");
+            }
+        });
     }
 
     /**

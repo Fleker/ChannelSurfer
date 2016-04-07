@@ -25,6 +25,7 @@ import java.util.List;
  */
 public class SampleTvInputProvider extends MultimediaInputProvider {
     private String TAG = "SampleTvInputProvider";
+    private boolean stillActive = false;
 
     @Override
     public void onCreate() {
@@ -53,6 +54,7 @@ public class SampleTvInputProvider extends MultimediaInputProvider {
         if(getResources().getBoolean(R.bool.channel_surfer_lifecycle_toasts))
             Toast.makeText(SampleTvInputProvider.this, "onRelease called", Toast.LENGTH_SHORT).show();
         Log.d(TAG, "onRelease called");
+        stillActive = true;
     }
     @Override
     public void onDestroy() {
@@ -74,6 +76,9 @@ public class SampleTvInputProvider extends MultimediaInputProvider {
             .setName("Big Buck Bunny")
             .setNumber("2"));
         channels.add(new Channel()
+            .setName("Sintel")
+            .setNumber("2-1"));
+        channels.add(new Channel()
             .setName("androidtv.news")
             .setNumber("3"));
         channels.add(new Channel()
@@ -93,23 +98,36 @@ public class SampleTvInputProvider extends MultimediaInputProvider {
         Log.d(TAG, "Get programs");
         for(int i=0;i<programs;i++) {
             Program p = null;
-            if(channelInfo.getNumber().equals("1")) {
+            if (channelInfo.getNumber().equals("1")) {
                 p = new Program.Builder(getGenericProgram(channelInfo))
                         .setTitle("What Time is It?")
                         .setInternalProviderData("http://time.is")
+                        .setDescription("A website that updates continually")
                         .setContentRatings(new TvContentRating[]{RATING_MA})
                         .setVideoWidth(1920)
                         .setVideoHeight(1080)
                         .setStartTimeUtcMillis((getNearestHour() + SEGMENT * i))
                         .setEndTimeUtcMillis((getNearestHour() + SEGMENT * (i + 1)))
                         .build();
-            } else if(channelInfo.getNumber().equals("2")) {
+            } else if (channelInfo.getNumber().equals("2")) {
                 p = new Program.Builder(getGenericProgram(channelInfo))
                         .setTitle("Big Buck Bunny")
+                        .setDescription("The Blender movie playing from a stream online")
                         .setInternalProviderData("http://184.72.239.149/vod/smil:BigBuckBunny.smil/playlist.m3u8")
                         .setVideoWidth(1920)
                         .setVideoHeight(1080)
-                        .setCanonicalGenres(new String[] {TvContract.Programs.Genres.MOVIES})
+                        .setCanonicalGenres(new String[]{TvContract.Programs.Genres.MOVIES})
+                        .setStartTimeUtcMillis((getNearestHour() + SEGMENT * i))
+                        .setEndTimeUtcMillis((getNearestHour() + SEGMENT * (i + 1)))
+                        .build();
+            } else if (channelInfo.getNumber().equals("2-1")) {
+                p = new Program.Builder(getGenericProgram(channelInfo))
+                        .setTitle("Sintel")
+                        .setInternalProviderData("https://www.youtube.com/embed/HomAZcKm3Jo?autoplay=1")
+                        .setDescription("The Blender movie Sintel playing straight from YouTube")
+                        .setVideoWidth(1920)
+                        .setVideoHeight(1080)
+                        .setCanonicalGenres(new String[]{TvContract.Programs.Genres.MOVIES, TvContract.Programs.Genres.FAMILY_KIDS})
                         .setStartTimeUtcMillis((getNearestHour() + SEGMENT * i))
                         .setEndTimeUtcMillis((getNearestHour() + SEGMENT * (i + 1)))
                         .build();
@@ -164,9 +182,21 @@ public class SampleTvInputProvider extends MultimediaInputProvider {
     }
 
     @Override
+    protected void onWebsiteFinishedLoading() {
+        if(currentChannel.getNumber().equals("2-1")) {
+            //Hopefully the thing is loaded
+            Log.d(TAG, "Running JS");
+            runJS("yt.player.getPlayerByElement('player').playVideo()");
+        }
+    }
+
+    @Override
     public View onCreateVideoView() {
         if(getResources().getBoolean(R.bool.channel_surfer_lifecycle_toasts))
-            Toast.makeText(SampleTvInputProvider.this, "onCreateVideoView", Toast.LENGTH_SHORT).show();
+            Toast.makeText(SampleTvInputProvider.this, "onCreateVideoView. Still active? "+stillActive, Toast.LENGTH_SHORT).show();
+        if(stillActive) {
+            onTune(currentChannel);
+        }
         Log.d(TAG, "Create video view");
         if(currentChannel != null && currentChannel.getNumber().equals("4")) {
             TextView tv = new TextView(this);
