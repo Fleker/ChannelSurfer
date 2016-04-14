@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
+import android.view.Surface;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -16,6 +17,7 @@ import android.widget.Toast;
 import com.felkertech.channelsurfer.model.Channel;
 import com.felkertech.channelsurfer.model.Program;
 import com.felkertech.channelsurfer.service.MultimediaInputProvider;
+import com.felkertech.settingsmanager.SettingsManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,13 +32,13 @@ public class SampleTvInputProvider extends MultimediaInputProvider {
     @Override
     public void onCreate() {
         super.onCreate();
-        if(getResources().getBoolean(R.bool.channel_surfer_lifecycle_toasts))
+        if(shouldShowToasts())
             Toast.makeText(SampleTvInputProvider.this, "onCreate called", Toast.LENGTH_SHORT).show();
         Log.d(TAG, "onCreate called");
     }
     @Override
     public boolean onUnbind(Intent intent) {
-        if(getResources().getBoolean(R.bool.channel_surfer_lifecycle_toasts)) {
+        if(shouldShowToasts()) {
             Toast.makeText(SampleTvInputProvider.this, "onUnbind called", Toast.LENGTH_SHORT).show();
         }
         return super.onUnbind(intent);
@@ -44,7 +46,7 @@ public class SampleTvInputProvider extends MultimediaInputProvider {
     @Override
     public void onRebind(Intent i) {
         super.onRebind(i);
-        if(getResources().getBoolean(R.bool.channel_surfer_lifecycle_toasts))
+        if(shouldShowToasts())
             Toast.makeText(SampleTvInputProvider.this, "onRebind called", Toast.LENGTH_SHORT).show();
         Log.d(TAG, "onRebind called");
     }
@@ -59,10 +61,17 @@ public class SampleTvInputProvider extends MultimediaInputProvider {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(getResources().getBoolean(R.bool.channel_surfer_lifecycle_toasts))
+        if(shouldShowToasts())
             Toast.makeText(SampleTvInputProvider.this, "onDestroy called", Toast.LENGTH_SHORT).show();
         Log.d(TAG, "onDestroy called");
     }
+
+    @Override
+    public boolean onSetSurface(Surface surface) {
+        Toast.makeText(SampleTvInputProvider.this, "onSetSurface called. Is surface null? "+(surface==null), Toast.LENGTH_SHORT).show();
+        return super.onSetSurface(surface);
+    }
+
 
     @Override
     public List<Channel> getAllChannels(Context ignored) {
@@ -162,7 +171,7 @@ public class SampleTvInputProvider extends MultimediaInputProvider {
     public boolean onTune(Channel channel) {
         this.currentChannel = channel;
         Program p = getProgramRightNow(channel);
-        if(getResources().getBoolean(R.bool.channel_surfer_lifecycle_toasts))
+        if(shouldShowToasts())
             Toast.makeText(SampleTvInputProvider.this, "Tuning to "+channel.getName()+" with program "+p.getTitle()+" at "+p.getInternalProviderData(), Toast.LENGTH_SHORT).show();
         Log.d(TAG, "Tuning to " + channel.getName());
         Log.d(TAG, "Playing "+p.getTitle());
@@ -192,10 +201,20 @@ public class SampleTvInputProvider extends MultimediaInputProvider {
 
     @Override
     public View onCreateVideoView() {
-        if(getResources().getBoolean(R.bool.channel_surfer_lifecycle_toasts))
+        if(shouldShowToasts())
             Toast.makeText(SampleTvInputProvider.this, "onCreateVideoView. Still active? "+stillActive, Toast.LENGTH_SHORT).show();
         if(stillActive) {
-            onTune(currentChannel);
+            //We're picking up where we left off
+            if(mSurface != null) {
+                Toast.makeText(SampleTvInputProvider.this, "Reset surface", Toast.LENGTH_SHORT).show();
+                onSetSurface(mSurface);
+            } else {
+                Toast.makeText(SampleTvInputProvider.this, "Try a forced reset", Toast.LENGTH_SHORT).show();
+                onUnbind(null);
+                onDestroy();
+                stillActive = false;
+                onCreate();
+            }
         }
         Log.d(TAG, "Create video view");
         if(currentChannel != null && currentChannel.getNumber().equals("4")) {
@@ -212,5 +231,9 @@ public class SampleTvInputProvider extends MultimediaInputProvider {
 
     public boolean isLocal() {
         return currentChannel != null && (currentChannel.getNumber().equals("3") || currentChannel.getNumber().equals("4"));
+    }
+
+    public boolean shouldShowToasts() {
+        return new SettingsManager(this).getBoolean(R.string.sm_debug);
     }
 }

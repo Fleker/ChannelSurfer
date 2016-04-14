@@ -17,15 +17,15 @@ repositories {
 
 
 android {
-    compileSdkVersion 'android-N'
+    compileSdkVersion 23
     buildToolsVersion "23.0.2"
 
     defaultConfig {
         applicationId "com.felkertech.sample.channelsurfer"
-        minSdkVersion 'N'
-        targetSdkVersion 'N'
+        minSdkVersion 23
+        targetSdkVersion 23
         versionCode 7
-        versionName "0.3.0"
+        versionName "0.2.15"
     }
     buildTypes {
         release {

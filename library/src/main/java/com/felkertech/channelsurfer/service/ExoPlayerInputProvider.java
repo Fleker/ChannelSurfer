@@ -33,8 +33,8 @@ public abstract class ExoPlayerInputProvider extends TvInputProvider
         if(exoPlayer == null)
             exoPlayer = new TvInputPlayer();
         Log.d(TAG, "Set to surface");
-        exoPlayer.setSurface(surface);
         mSurface = surface;
+        exoPlayer.setSurface(mSurface);
         return true;
     }
 
