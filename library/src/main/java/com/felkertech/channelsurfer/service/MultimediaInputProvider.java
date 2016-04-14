@@ -139,12 +139,12 @@ public abstract class MultimediaInputProvider extends ExoPlayerInputProvider {
             }
         };
         try {
-            exoPlayer.removeCallback(callback);
+            tvInputPlayer.removeCallback(callback);
         } catch(NullPointerException e) {
             Log.w(TAG, "exoplayer.removeCallback error "+e.getMessage());
         }
-        exoPlayer.addCallback(callback);
-        exoPlayer.setSurface(mSurface);
+        tvInputPlayer.addCallback(callback);
+        tvInputPlayer.setSurface(mSurface);
         Log.d(TAG, "Play "+uri+"; "+uri.indexOf("file:///"));
         if(uri.contains("file:///")) {
             Log.i(TAG, "Is a local file");
@@ -156,14 +156,14 @@ public abstract class MultimediaInputProvider extends ExoPlayerInputProvider {
                     new Mp4Extractor(), new Mp3Extractor());
             TrackRenderer audio=new MediaCodecAudioTrackRenderer(extractorSampleSource);
             TrackRenderer video=new MediaCodecVideoTrackRenderer(getApplicationContext(),extractorSampleSource, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
-            exoPlayer.prepare(audio, video, new DummyTrackRenderer());
+            tvInputPlayer.prepare(audio, video, new DummyTrackRenderer());
         } else {
             try {
-                exoPlayer.prepare(getApplicationContext(), Uri.parse(uri), TvInputPlayer.SOURCE_TYPE_HLS);
+                tvInputPlayer.prepare(getApplicationContext(), Uri.parse(uri), TvInputPlayer.SOURCE_TYPE_HLS);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        exoPlayer.setPlayWhenReady(true);
+        tvInputPlayer.setPlayWhenReady(true);
     }
 }

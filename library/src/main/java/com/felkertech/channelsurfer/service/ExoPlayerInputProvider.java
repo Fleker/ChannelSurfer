@@ -23,34 +23,38 @@ import java.util.Date;
  */
 public abstract class ExoPlayerInputProvider extends TvInputProvider
         implements TimeShiftable {
-    protected TvInputPlayer exoPlayer;
+    protected TvInputPlayer tvInputPlayer;
     protected Surface mSurface;
     private String TAG = "ExoPlayerInputProvider";
     private float mVolume;
 
     @Override
     public boolean onSetSurface(Surface surface) {
-        if(exoPlayer == null)
-            exoPlayer = new TvInputPlayer();
-        Log.d(TAG, "Set to surface");
-        mSurface = surface;
-        exoPlayer.setSurface(mSurface);
-        return true;
+        if(tvInputPlayer == null)
+            tvInputPlayer = new TvInputPlayer();
+        if(surface != null) {
+            Log.d(TAG, "Set to surface");
+            tvInputPlayer.setSurface(surface);
+            mSurface = surface;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
     public void onSetStreamVolume(float volume) {
-        if (exoPlayer != null) {
-            exoPlayer.setVolume(volume);
+        if (tvInputPlayer != null) {
+            tvInputPlayer.setVolume(volume);
         }
         mVolume = volume;
     }
 
     @Override
     public void onRelease() {
-        if (exoPlayer != null) {
+        if (tvInputPlayer != null) {
             Log.d(TAG, "Released from surface");
-            exoPlayer.release();
+            tvInputPlayer.release();
         }
     }
 
@@ -60,7 +64,7 @@ public abstract class ExoPlayerInputProvider extends TvInputProvider
      * @param uri The URL where the file resides
      */
     public void play(String uri) {
-        exoPlayer.setSurface(mSurface);
+        tvInputPlayer.setSurface(mSurface);
         try {
             Log.d(TAG, "Play "+uri+"; "+uri.indexOf("asset:///"));
             if(uri.contains("asset:///")) {
@@ -68,30 +72,30 @@ public abstract class ExoPlayerInputProvider extends TvInputProvider
                 DataSource dataSource=new AssetDataSource(getApplicationContext());
                 ExtractorSampleSource extractorSampleSource=new ExtractorSampleSource(Uri.parse(uri),dataSource,new DefaultAllocator(1000),5000);
                 TrackRenderer audio=new MediaCodecAudioTrackRenderer(extractorSampleSource,null,true);
-                exoPlayer.prepare(audio, null, null);
+                tvInputPlayer.prepare(audio, null, null);
             } else {
-                exoPlayer.prepare(getApplicationContext(), Uri.parse(uri), TvInputPlayer.SOURCE_TYPE_HLS);
+                tvInputPlayer.prepare(getApplicationContext(), Uri.parse(uri), TvInputPlayer.SOURCE_TYPE_HLS);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        exoPlayer.setPlayWhenReady(true);
+        tvInputPlayer.setPlayWhenReady(true);
 
     }
     @Override
     public void onMediaPause() {
-        exoPlayer.setPlayWhenReady(false);
+        tvInputPlayer.setPlayWhenReady(false);
     }
 
     @Override
     public void onMediaResume() {
-        exoPlayer.setPlayWhenReady(true);
+        tvInputPlayer.setPlayWhenReady(true);
     }
 
     @Override
     public void onMediaSeekTo(long timeMs) {
         Log.d(TAG, "Seek from "+mediaGetCurrentMs()+" to "+timeMs);
-        exoPlayer.seekTo(timeMs - mediaGetStartMs());
+        tvInputPlayer.seekTo(timeMs - mediaGetStartMs());
     }
 
     @Override
@@ -106,7 +110,7 @@ public abstract class ExoPlayerInputProvider extends TvInputProvider
 
     @Override
     public long mediaGetCurrentMs() {
-        return exoPlayer.getCurrentPosition()+mediaGetStartMs();
+        return tvInputPlayer.getCurrentPosition()+mediaGetStartMs();
     }
 
     @Override
