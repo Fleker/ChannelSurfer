@@ -186,8 +186,8 @@ public class TvInputPlayer implements TextRenderer {
             ExtractorSampleSource sampleSource =
                     new ExtractorSampleSource(uri, dataSource, new DefaultAllocator(BUFFER_SEGMENT_SIZE),
                             BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE);
-            audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource);
-            videoRenderer = new MediaCodecVideoTrackRenderer(context, sampleSource,
+            audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource, null); //We don't have any decoder
+            videoRenderer = new MediaCodecVideoTrackRenderer(context, sampleSource, null,
                     MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING, 0, mHandler,
                     mVideoRendererEventListener, 50);
             textRenderer = new DummyTrackRenderer();
@@ -209,14 +209,14 @@ public class TvInputPlayer implements TextRenderer {
                             DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
                             DataSource dataSource = new DefaultUriDataSource(context, userAgent);
 
-                            HlsChunkSource chunkSource = new HlsChunkSource(dataSource, uri.toString(),
-                                    hlsPlaylist, bandwidthMeter,
+                            HlsChunkSource chunkSource = new HlsChunkSource(true, dataSource, uri.toString(),
+                                    hlsPlaylist, null, bandwidthMeter,
                                     null, HlsChunkSource.ADAPTIVE_MODE_SPLICE);
 
                             LoadControl lhc = new DefaultLoadControl(new DefaultAllocator(BUFFER_SEGMENT_SIZE));
                             HlsSampleSource sampleSource = new HlsSampleSource(chunkSource, lhc, BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE);
-                            audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource);
-                            videoRenderer = new MediaCodecVideoTrackRenderer(context, sampleSource,
+                            audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource, null);
+                            videoRenderer = new MediaCodecVideoTrackRenderer(context, sampleSource, null,
                                     MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING, 5000, mHandler,
                                     mVideoRendererEventListener, 50);
                             textRenderer = new Eia608TrackRenderer(sampleSource,
@@ -296,11 +296,11 @@ public class TvInputPlayer implements TextRenderer {
                                         DefaultDashTrackSelector.newVideoInstance(context, true, false),
                                         videoDataSource,
                                         new FormatEvaluator.AdaptiveEvaluator(videoBandwidthMeter), LIVE_EDGE_LATENCY_MS,
-                                        0, true, null, null);
+                                        0, true, null, null, 2);
                                 ChunkSampleSource videoSampleSource = new ChunkSampleSource(
                                         videoChunkSource, loadControl,
                                         VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE);
-                                videoRenderer = new MediaCodecVideoTrackRenderer(context, videoSampleSource,
+                                videoRenderer = new MediaCodecVideoTrackRenderer(context, videoSampleSource, null,
                                         MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING, 0, mHandler,
                                         mVideoRendererEventListener, 50);
                             }
@@ -328,7 +328,7 @@ public class TvInputPlayer implements TextRenderer {
                                     audioChunkSourceList.add(new DashChunkSource(manifestFetcher,
                                             DefaultDashTrackSelector.newAudioInstance(),
                                             audioDataSource,
-                                            audioEvaluator, LIVE_EDGE_LATENCY_MS, 0, null, null));
+                                            audioEvaluator, LIVE_EDGE_LATENCY_MS, 0, true, null, null, 3));
                                 }
                             }
 
@@ -379,9 +379,9 @@ public class TvInputPlayer implements TextRenderer {
                 ExtractorSampleSource sampleSource = new ExtractorSampleSource(originalUri, extractorDataSource, allocator,
                         BUFFER_SEGMENT_COUNT * BUFFER_SEGMENT_SIZE);
                 MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(context,
-                        sampleSource, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING, 5000, mHandler,
+                        sampleSource, null, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING, 5000, mHandler,
                         mVideoRendererEventListener, 50);
-                MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource);
+                MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource, null);
                 TrackRenderer textRenderer = new DummyTrackRenderer();
                 // Invoke the callback.
 
@@ -417,7 +417,7 @@ public class TvInputPlayer implements TextRenderer {
             return false;
         }
         if (trackId == null) {
-            mPlayer.setRendererEnabled(trackType, false);
+            //mPlayer.setRendererEnabled(trackType, false);
         } else {
             int trackIndex = Integer.parseInt(trackId);
         }
@@ -477,7 +477,7 @@ public class TvInputPlayer implements TextRenderer {
                 mPlayer.sendMessage(videoRenderer, MediaCodecVideoTrackRenderer.MSG_SET_SURFACE,
                         mSurface);
                 // Disable text track by default.
-                mPlayer.setRendererEnabled(TvTrackInfo.TYPE_SUBTITLE, false);
+                //mPlayer.setRendererEnabled(TvTrackInfo.TYPE_SUBTITLE, false);
 //            }
             for (Callback callback : mCallbacks) {
                 callback.onPrepared();

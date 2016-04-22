@@ -38,8 +38,8 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile project(':library')
-    compile 'com.android.support:recyclerview-v7:23.2.1'
-    compile 'com.android.support:leanback-v17:23.2.1'
+    compile 'com.android.support:recyclerview-v7:23.3.0'
+    compile 'com.android.support:leanback-v17:23.3.0'
     compile 'com.github.fleker:settingsmanager:1.2.1'
     compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
         transitive = true;

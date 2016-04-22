@@ -71,7 +71,7 @@ public abstract class ExoPlayerInputProvider extends TvInputProvider
                 Log.i(TAG, "Is a local file");
                 DataSource dataSource=new AssetDataSource(getApplicationContext());
                 ExtractorSampleSource extractorSampleSource=new ExtractorSampleSource(Uri.parse(uri),dataSource,new DefaultAllocator(1000),5000);
-                TrackRenderer audio=new MediaCodecAudioTrackRenderer(extractorSampleSource,null,true);
+                TrackRenderer audio=new MediaCodecAudioTrackRenderer(extractorSampleSource,null,null,true);
                 tvInputPlayer.prepare(audio, null, null);
             } else {
                 tvInputPlayer.prepare(getApplicationContext(), Uri.parse(uri), TvInputPlayer.SOURCE_TYPE_HLS);
@@ -110,7 +110,10 @@ public abstract class ExoPlayerInputProvider extends TvInputProvider
 
     @Override
     public long mediaGetCurrentMs() {
-        return tvInputPlayer.getCurrentPosition()+mediaGetStartMs();
+        if(tvInputPlayer != null)
+            return tvInputPlayer.getCurrentPosition()+mediaGetStartMs();
+        else
+            return 0; //No media to get
     }
 
     @Override

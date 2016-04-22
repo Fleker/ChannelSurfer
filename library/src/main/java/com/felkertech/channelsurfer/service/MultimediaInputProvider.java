@@ -154,8 +154,8 @@ public abstract class MultimediaInputProvider extends ExoPlayerInputProvider {
             ExtractorSampleSource extractorSampleSource=new ExtractorSampleSource(Uri.parse(uri),dataSource,
                     new DefaultAllocator(TvInputPlayer.BUFFER_SEGMENT_SIZE), TvInputPlayer.BUFFER_SEGMENTS * TvInputPlayer.BUFFER_SEGMENT_SIZE,
                     new Mp4Extractor(), new Mp3Extractor());
-            TrackRenderer audio=new MediaCodecAudioTrackRenderer(extractorSampleSource);
-            TrackRenderer video=new MediaCodecVideoTrackRenderer(getApplicationContext(),extractorSampleSource, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
+            TrackRenderer audio=new MediaCodecAudioTrackRenderer(extractorSampleSource, null);
+            TrackRenderer video=new MediaCodecVideoTrackRenderer(getApplicationContext(),extractorSampleSource, null, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
             tvInputPlayer.prepare(audio, video, new DummyTrackRenderer());
         } else {
             try {

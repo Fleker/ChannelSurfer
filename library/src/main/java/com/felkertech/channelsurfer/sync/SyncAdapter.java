@@ -117,6 +117,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     public void performSync(TvInputProvider provider, String inputId) {
         Log.d(TAG, "Actually begin the sync");
         List<Channel> allChannels = provider.getAllChannels(getContext());
+        if(allChannels == null) {
+            //You have no channels!!
+            return;
+        }
         Log.d(TAG, allChannels.toString());
         for (int i = 0; i < allChannels.size(); i++) {
             if (allChannels.get(i).getOriginalNetworkId() == 0)
