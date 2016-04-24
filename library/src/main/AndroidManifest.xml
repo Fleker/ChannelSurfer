@@ -4,14 +4,14 @@
 
     <!-- ChannelSurfer -->
     <uses-feature
-        android:name="android.software.live_tv"
+        android:name="android.software.LIVE_TV"
         android:required="false" />
     <uses-feature
-        android:name="android.hardware.touchscreen"
+        android:name="android.hardware.TOUCHSCREEN"
         android:required="false" />
     <uses-feature
-        android:name="android.software.leanback"
-        android:required="true" />
+        android:name="android.software.LEANBACK"
+        android:required="false" />
 
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_SYNC_STATS" />
