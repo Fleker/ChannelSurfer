@@ -74,12 +74,16 @@ public class SampleTvInputProvider extends MultimediaInputProvider {
 
 
     @Override
-    public List<Channel> getAllChannels(Context ignored) {
+    public List<Channel> getAllChannels(Context mContext) {
         Log.d(TAG, "Get all channels");
 //        Toast.makeText(SampleTvInputProvider.this, "Get all channels", Toast.LENGTH_SHORT).show();
         List<Channel> channels = new ArrayList<>();
         channels.add(new Channel()
             .setName("Time.Is")
+            .setAppLinkColor(mContext.getResources().getColor(R.color.cs_blue_500)+"")
+            .setAppLinkIntent(new Intent("com.google.android.music"))
+            .setAppLinkText("Open Google Play Music")
+            .setAppLinkIcon(mContext.getResources().getDrawable(R.drawable.lb_ic_more).toString())
             .setNumber("1"));
         channels.add(new Channel()
             .setName("Big Buck Bunny")

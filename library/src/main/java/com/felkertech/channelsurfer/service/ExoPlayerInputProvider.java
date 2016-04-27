@@ -118,6 +118,6 @@ public abstract class ExoPlayerInputProvider extends TvInputProvider
 
     @Override
     public void onMediaSetPlaybackParams(PlaybackParams playbackParams) {
-        //Do nothing
+
     }
 }

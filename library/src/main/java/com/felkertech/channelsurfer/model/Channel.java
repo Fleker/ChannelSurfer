@@ -1,5 +1,7 @@
 package com.felkertech.channelsurfer.model;
 
+import android.content.Intent;
+
 import java.util.List;
 
 public class Channel {
@@ -15,6 +17,12 @@ public class Channel {
     private int videoHeight;
     private List<Program> programs;
     private int channelId;
+    //App Links
+    private String appLinkColor;
+    private String appLinkIcon;
+    private String appLinkIntent;
+    private String appLinkPoster;
+    private String appLinkText;
 
     public Channel() {}
     public Channel(String number, String name, String logoUrl, int originalNetworkId,
@@ -154,6 +162,59 @@ public class Channel {
 
     public Channel setChannelId(int channelId) {
         this.channelId = channelId;
+        return this;
+    }
+
+    public String getAppLinkColor() {
+        return appLinkColor;
+    }
+
+    public Channel setAppLinkColor(String appLinkColor) {
+        this.appLinkColor = appLinkColor;
+        return this;
+    }
+    public Channel setAppLinkColor(int appLinkColor) {
+        this.appLinkColor = appLinkColor+"";
+        return this;
+    }
+
+    public String getAppLinkIcon() {
+        return appLinkIcon;
+    }
+
+    public Channel setAppLinkIcon(String appLinkIcon) {
+        this.appLinkIcon = appLinkIcon;
+        return this;
+    }
+
+    public String getAppLinkIntent() {
+        return appLinkIntent;
+    }
+
+    public Channel setAppLinkIntent(String appLinkIntent) {
+        this.appLinkIntent = appLinkIntent;
+        return this;
+    }
+    public Channel setAppLinkIntent(Intent appLinkIntent) {
+        this.appLinkIntent = appLinkIntent.toUri(Intent.URI_INTENT_SCHEME);
+        return this;
+    }
+
+    public String getAppLinkPoster() {
+        return appLinkPoster;
+    }
+
+    public Channel setAppLinkPoster(String appLinkPoster) {
+        this.appLinkPoster = appLinkPoster;
+        return this;
+    }
+
+    public String getAppLinkText() {
+        return appLinkText;
+    }
+
+    public Channel setAppLinkText(String appLinkText) {
+        this.appLinkText = appLinkText;
         return this;
     }
 }

@@ -9,6 +9,7 @@ import android.media.tv.TvContract.Channels;
 import android.media.tv.TvContract.Programs;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.LongSparseArray;
@@ -106,6 +107,35 @@ public class TvContractUtils {
                 values.put(Channels.COLUMN_VIDEO_FORMAT, videoFormat);
             } else {
                 values.putNull(Channels.COLUMN_VIDEO_FORMAT);
+            }
+
+            //App Linking, Marshmallow+ only
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (channel.getAppLinkColor() != null) {
+                    values.put(Channels.COLUMN_APP_LINK_COLOR, channel.getAppLinkColor());
+                } else {
+                    values.putNull(Channels.COLUMN_APP_LINK_COLOR);
+                }
+                if (channel.getAppLinkIcon() != null) {
+                    values.put(Channels.COLUMN_APP_LINK_ICON_URI, channel.getAppLinkIcon());
+                } else {
+                    values.putNull(Channels.COLUMN_APP_LINK_ICON_URI);
+                }
+                if (channel.getAppLinkIntent() != null) {
+                    values.put(Channels.COLUMN_APP_LINK_INTENT_URI, channel.getAppLinkIntent());
+                } else {
+                    values.putNull(Channels.COLUMN_APP_LINK_INTENT_URI);
+                }
+                if (channel.getAppLinkPoster() != null) {
+                    values.put(Channels.COLUMN_APP_LINK_POSTER_ART_URI, channel.getAppLinkPoster());
+                } else {
+                    values.putNull(Channels.COLUMN_APP_LINK_POSTER_ART_URI);
+                }
+                if (channel.getAppLinkText() != null) {
+                    values.put(Channels.COLUMN_APP_LINK_TEXT, channel.getAppLinkText());
+                } else {
+                    values.putNull(Channels.COLUMN_APP_LINK_TEXT);
+                }
             }
 
             Uri uri;

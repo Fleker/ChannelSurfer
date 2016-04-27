@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.media.MediaCodec;
+import android.media.PlaybackParams;
 import android.media.tv.TvTrackInfo;
 import android.net.Uri;
 import android.os.Build;
@@ -548,5 +549,9 @@ public class TvInputPlayer implements TextRenderer {
         void onPlayerError(ExoPlaybackException e);
         void onDrawnToSurface(Surface surface);
         void onText(String text);
+    }
+
+    public void setPlaybackParams(PlaybackParams playbackParams) {
+
     }
 }
