@@ -176,7 +176,7 @@ public class SimpleSessionImpl extends TvInputService.Session {
             TvContentRating blocked = null; //Reset our channel blocking until we check again
             Log.d(TAG, "Tuning to " + channelUri.toString());
             String[] projection = {TvContract.Channels.COLUMN_DISPLAY_NAME, TvContract.Channels.COLUMN_ORIGINAL_NETWORK_ID,
-                    TvContract.Channels.COLUMN_SERVICE_ID, TvContract.Channels.COLUMN_TRANSPORT_STREAM_ID,
+                    TvContract.Channels.COLUMN_SERVICE_ID, TvContract.Channels.COLUMN_TRANSPORT_STREAM_ID, TvContract.Channels.COLUMN_INTERNAL_PROVIDER_DATA,
                     TvContract.Channels.COLUMN_INPUT_ID, TvContract.Channels.COLUMN_DISPLAY_NUMBER, TvContract.Channels._ID};
             //Now look up this channel in the DB
             try (Cursor cursor = tvInputProvider.getContentResolver().query(channelUri, projection, null, null, null)) {
@@ -192,23 +192,28 @@ public class SimpleSessionImpl extends TvInputService.Session {
                         .setOriginalNetworkId(cursor.getInt(cursor.getColumnIndex(TvContract.Channels.COLUMN_ORIGINAL_NETWORK_ID)))
                         .setTransportStreamId(cursor.getInt(cursor.getColumnIndex(TvContract.Channels.COLUMN_TRANSPORT_STREAM_ID)))
                         .setServiceId(cursor.getInt(cursor.getColumnIndex(TvContract.Channels.COLUMN_SERVICE_ID)))
+                        .setInternalProviderData(cursor.getString(cursor.getColumnIndex(TvContract.Channels.COLUMN_INTERNAL_PROVIDER_DATA)))
                         .setChannelId(cursor.getInt(cursor.getColumnIndex(TvContract.Channels._ID)))
                         .setVideoHeight(1080)
                         .setVideoWidth(1920);
                 session.currentChannel = channel;
-                TvInputManager mTvInputManager = (TvInputManager) tvInputProvider.getApplicationContext().getSystemService(Context.TV_INPUT_SERVICE);
-                sendToast("Parental controls enabled? "+mTvInputManager.isParentalControlsEnabled());
-                if(mTvInputManager.isParentalControlsEnabled()) {
-                    TvContentRating blockedRating = null;
-                    for(int i=0;i<tvInputProvider.getProgramRightNow(channel).getContentRatings().length;i++) {
-                        blockedRating = (mTvInputManager.isRatingBlocked(tvInputProvider.getProgramRightNow(channel).getContentRatings()[i]) && blockedRating == null)?tvInputProvider.getProgramRightNow(channel).getContentRatings()[i]:null;
-                    }
-                    sendToast("Is channel blocked w/ "+blockedRating+"? Only if not null");
-                    blocked = blockedRating;
-                    if(blockedRating != null) {
-                        notifyContentBlocked(blockedRating);
-                    } else {
-                        notifyContentAllowed();
+
+                //Check Content Rating if applicable
+                if(tvInputProvider.getProgramRightNow(channel) != null) {
+                    TvInputManager mTvInputManager = (TvInputManager) tvInputProvider.getApplicationContext().getSystemService(Context.TV_INPUT_SERVICE);
+                    sendToast("Parental controls enabled? " + mTvInputManager.isParentalControlsEnabled());
+                    if (mTvInputManager.isParentalControlsEnabled()) {
+                        TvContentRating blockedRating = null;
+                        for (int i = 0; i < tvInputProvider.getProgramRightNow(channel).getContentRatings().length; i++) {
+                            blockedRating = (mTvInputManager.isRatingBlocked(tvInputProvider.getProgramRightNow(channel).getContentRatings()[i]) && blockedRating == null) ? tvInputProvider.getProgramRightNow(channel).getContentRatings()[i] : null;
+                        }
+                        sendToast("Is channel blocked w/ " + blockedRating + "? Only if not null");
+                        blocked = blockedRating;
+                        if (blockedRating != null) {
+                            notifyContentBlocked(blockedRating);
+                        } else {
+                            notifyContentAllowed();
+                        }
                     }
                 }
                 Bundle b = new Bundle();
