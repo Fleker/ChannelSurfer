@@ -18,6 +18,7 @@ import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
+import com.google.android.exoplayer.MediaCodecSelector;
 import com.google.android.exoplayer.MediaCodecTrackRenderer;
 import com.google.android.exoplayer.MediaCodecUtil;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
@@ -34,10 +35,13 @@ import com.google.android.exoplayer.dash.mpd.MediaPresentationDescriptionParser;
 import com.google.android.exoplayer.dash.mpd.Period;
 import com.google.android.exoplayer.dash.mpd.Representation;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
+import com.google.android.exoplayer.hls.DefaultHlsTrackSelector;
 import com.google.android.exoplayer.hls.HlsChunkSource;
 import com.google.android.exoplayer.hls.HlsPlaylist;
 import com.google.android.exoplayer.hls.HlsPlaylistParser;
 import com.google.android.exoplayer.hls.HlsSampleSource;
+import com.google.android.exoplayer.hls.HlsTrackSelector;
+import com.google.android.exoplayer.hls.PtsTimestampAdjusterProvider;
 import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.TextRenderer;
 import com.google.android.exoplayer.text.eia608.Eia608TrackRenderer;
@@ -186,8 +190,8 @@ public class TvInputPlayer implements TextRenderer {
             ExtractorSampleSource sampleSource =
                     new ExtractorSampleSource(uri, dataSource, new DefaultAllocator(BUFFER_SEGMENT_SIZE),
                             BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE);
-            audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource, null); //We don't have any decoder
-            videoRenderer = new MediaCodecVideoTrackRenderer(context, sampleSource, null,
+            audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource, MediaCodecSelector.DEFAULT); //We don't have any decoder
+            videoRenderer = new MediaCodecVideoTrackRenderer(context, sampleSource, MediaCodecSelector.DEFAULT,
                     MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING, 0, mHandler,
                     mVideoRendererEventListener, 50);
             textRenderer = new DummyTrackRenderer();
@@ -208,15 +212,17 @@ public class TvInputPlayer implements TextRenderer {
                             Log.d(TAG, "onSingleManifest(HlsPlaylist)");
                             DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
                             DataSource dataSource = new DefaultUriDataSource(context, userAgent);
+                            //Need a timestamp adjuster I guess
+                            PtsTimestampAdjusterProvider timestampAdjusterProvider = new PtsTimestampAdjusterProvider();
 
                             HlsChunkSource chunkSource = new HlsChunkSource(true, dataSource, uri.toString(),
-                                    hlsPlaylist, null, bandwidthMeter,
-                                    null, HlsChunkSource.ADAPTIVE_MODE_SPLICE);
+                                    hlsPlaylist, DefaultHlsTrackSelector.newDefaultInstance(context), bandwidthMeter,
+                                    timestampAdjusterProvider, HlsChunkSource.ADAPTIVE_MODE_SPLICE);
 
                             LoadControl lhc = new DefaultLoadControl(new DefaultAllocator(BUFFER_SEGMENT_SIZE));
                             HlsSampleSource sampleSource = new HlsSampleSource(chunkSource, lhc, BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE);
-                            audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource, null);
-                            videoRenderer = new MediaCodecVideoTrackRenderer(context, sampleSource, null,
+                            audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource, MediaCodecSelector.DEFAULT);
+                            videoRenderer = new MediaCodecVideoTrackRenderer(context, sampleSource, MediaCodecSelector.DEFAULT,
                                     MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING, 5000, mHandler,
                                     mVideoRendererEventListener, 50);
                             textRenderer = new Eia608TrackRenderer(sampleSource,
@@ -300,7 +306,7 @@ public class TvInputPlayer implements TextRenderer {
                                 ChunkSampleSource videoSampleSource = new ChunkSampleSource(
                                         videoChunkSource, loadControl,
                                         VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE);
-                                videoRenderer = new MediaCodecVideoTrackRenderer(context, videoSampleSource, null,
+                                videoRenderer = new MediaCodecVideoTrackRenderer(context, videoSampleSource, MediaCodecSelector.DEFAULT,
                                         MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING, 0, mHandler,
                                         mVideoRendererEventListener, 50);
                             }
@@ -354,8 +360,7 @@ public class TvInputPlayer implements TextRenderer {
                             Log.e(TAG, e.getMessage());
                             try {
                                 prepare(context, originalUri, SOURCE_TYPE_EXTRACTOR);
-                            } catch (Exception e1) {
-                            }
+                            } catch (Exception ignored) {}
                             for (Callback callback : callbacks) {
                                 callback.onPlayerError(new ExoPlaybackException(e));
                             }
@@ -379,9 +384,9 @@ public class TvInputPlayer implements TextRenderer {
                 ExtractorSampleSource sampleSource = new ExtractorSampleSource(originalUri, extractorDataSource, allocator,
                         BUFFER_SEGMENT_COUNT * BUFFER_SEGMENT_SIZE);
                 MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(context,
-                        sampleSource, null, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING, 5000, mHandler,
+                        sampleSource, MediaCodecSelector.DEFAULT, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING, 5000, mHandler,
                         mVideoRendererEventListener, 50);
-                MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource, null);
+                MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource, MediaCodecSelector.DEFAULT);
                 TrackRenderer textRenderer = new DummyTrackRenderer();
                 // Invoke the callback.
 
@@ -487,8 +492,6 @@ public class TvInputPlayer implements TextRenderer {
             Log.e(TAG, E.getClass().getSimpleName());
             if(E.getClass().getName().contains("ExoPlaybackException")) {
                 throw new IllegalArgumentException(E.getMessage()+"");
-            } else {
-//                E.printStackTrace();
             }
         }
     }
