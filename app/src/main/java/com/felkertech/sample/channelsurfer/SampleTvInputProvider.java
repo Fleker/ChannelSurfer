@@ -76,26 +76,33 @@ public class SampleTvInputProvider extends MultimediaInputProvider {
     @Override
     public List<Channel> getAllChannels(Context mContext) {
         Log.d(TAG, "Get all channels");
-//        Toast.makeText(SampleTvInputProvider.this, "Get all channels", Toast.LENGTH_SHORT).show();
         List<Channel> channels = new ArrayList<>();
         channels.add(new Channel()
             .setName("Time.Is")
-            .setAppLinkColor(mContext.getResources().getColor(R.color.cs_blue_500)+"")
+            .setAppLinkColor(mContext.getResources().getColor(R.color.cs_blue_500))
             .setAppLinkIntent(new Intent("com.google.android.music"))
             .setAppLinkText("Open Google Play Music")
-            .setAppLinkIcon(mContext.getResources().getDrawable(R.drawable.lb_ic_more).toString())
+            .setAppLinkIcon("android.resource://com.felkertech.sample.channelsurfer/drawable/md_library_music")
             .setNumber("1"));
         channels.add(new Channel()
             .setName("Big Buck Bunny")
+            .setAppLinkColor(mContext.getResources().getColor(R.color.md_red_500))
+            .setAppLinkText("Open Netflix")
+            .setAppLinkIntent(new Intent("com.netflix.ninja"))
+            .setAppLinkIcon("android.resource://com.felkertech.sample.channelsurfer/drawable/md_movies")
             .setNumber("2"));
         channels.add(new Channel()
             .setName("Sintel")
+            .setAppLinkColor(mContext.getResources().getColor(R.color.md_green_500))
             .setNumber("2-1"));
         channels.add(new Channel()
-            .setName("androidtv.news")
+            .setName("androidtv.news")/*
+            .setAppLinkText("Visit site")*/
+            .setAppLinkColor(mContext.getResources().getColor(R.color.md_purple_500))
             .setNumber("3"));
         channels.add(new Channel()
             .setName("Dance Party")
+            .setAppLinkColor(mContext.getResources().getColor(R.color.md_brown_500))
             .setNumber("4"));
         Log.d(TAG, "Get channels");
         return channels;
@@ -104,7 +111,6 @@ public class SampleTvInputProvider extends MultimediaInputProvider {
     @Override
     public List<Program> getProgramsForChannel(Context ignored, Uri channelUri, Channel channelInfo, long startTimeMs, long endTimeMs) {
         Log.d(TAG, "Get programs for channel "+channelInfo.getName());
-//        Toast.makeText(SampleTvInputProvider.this, "Get all programs for "+channelInfo.getName(), Toast.LENGTH_SHORT).show();
         int programs = (int) ((endTimeMs-startTimeMs)/1000/60/60); //Hour long segments
         int SEGMENT = 1000*60*60; //Hour long segments
         List<Program> programList = new ArrayList<>();
