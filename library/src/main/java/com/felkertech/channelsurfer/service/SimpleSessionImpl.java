@@ -20,6 +20,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.felkertech.channelsurfer.R;
+import com.felkertech.channelsurfer.interfaces.SplashScreenable;
 import com.felkertech.channelsurfer.interfaces.TimeShiftable;
 import com.felkertech.channelsurfer.model.Channel;
 
@@ -31,10 +32,12 @@ import java.util.Date;
  */
 public class SimpleSessionImpl extends TvInputService.Session {
     private String TAG = "SimpleSession";
-    private Channel currentChannel;
+    protected Channel currentChannel;
+    protected Uri currentChannelUri;
     private TvInputProvider tvInputProvider;
     private TvInputManager inputManager;
-    SimpleSessionImpl(TvInputProvider tvInputProvider) {
+    private boolean isStillLoading; //If the channel is currently still loading, the system may choose to display a splashscreen if that's set
+    public SimpleSessionImpl(TvInputProvider tvInputProvider) {
         super(tvInputProvider);
         this.tvInputProvider = tvInputProvider;
         Log.d(TAG, "Time shiftable? "+tvInputProvider.getClass().getSimpleName());
@@ -66,6 +69,8 @@ public class SimpleSessionImpl extends TvInputService.Session {
     }
     @Override
     public View onCreateOverlayView() {
+        if(tvInputProvider instanceof SplashScreenable && isStillLoading)
+            return ((SplashScreenable) tvInputProvider).getSplashscreen(currentChannelUri);
         return tvInputProvider.onCreateOverlayView();
     }
 
@@ -73,8 +78,15 @@ public class SimpleSessionImpl extends TvInputService.Session {
     @Override
     public boolean onTune(Uri channelUri) {
         lastTune = new Date();
+        currentChannelUri = channelUri;
 //        notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_TUNING);
-        notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_BUFFERING);
+        if(tvInputProvider instanceof SplashScreenable) {
+            notifyVideoAvailable();
+            setOverlayViewEnabled(false);
+            setOverlayViewEnabled(true);
+            isStillLoading = true;
+        } else
+            notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_BUFFERING);
         setOverlayViewEnabled(true);
         new TuningTask().execute(channelUri, this);
         return true;
@@ -234,6 +246,7 @@ public class SimpleSessionImpl extends TvInputService.Session {
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
                 if(msg.getData().getBoolean("tune")) {
+                    isStillLoading = false;
                     tvInputProvider.onTune(channel);
                 } else {
                     if (tvInputProvider.getApplicationContext().getResources().getBoolean(R.bool.channel_surfer_lifecycle_toasts))

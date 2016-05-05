@@ -12,6 +12,7 @@ import com.felkertech.channelsurfer.players.WebInputPlayer;
 import com.google.android.exoplayer.DummyTrackRenderer;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
+import com.google.android.exoplayer.MediaCodecSelector;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
@@ -154,8 +155,8 @@ public abstract class MultimediaInputProvider extends ExoPlayerInputProvider {
             ExtractorSampleSource extractorSampleSource=new ExtractorSampleSource(Uri.parse(uri),dataSource,
                     new DefaultAllocator(TvInputPlayer.BUFFER_SEGMENT_SIZE), TvInputPlayer.BUFFER_SEGMENTS * TvInputPlayer.BUFFER_SEGMENT_SIZE,
                     new Mp4Extractor(), new Mp3Extractor());
-            TrackRenderer audio=new MediaCodecAudioTrackRenderer(extractorSampleSource, null);
-            TrackRenderer video=new MediaCodecVideoTrackRenderer(getApplicationContext(),extractorSampleSource, null, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
+            TrackRenderer audio=new MediaCodecAudioTrackRenderer(extractorSampleSource, MediaCodecSelector.DEFAULT);
+            TrackRenderer video=new MediaCodecVideoTrackRenderer(getApplicationContext(),extractorSampleSource, MediaCodecSelector.DEFAULT, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
             tvInputPlayer.prepare(audio, video, new DummyTrackRenderer());
         } else {
             try {

@@ -284,7 +284,7 @@ public abstract class TvInputProvider extends TvInputService {
     }
 
     /* TV Input Methods */
-    SimpleSessionImpl simpleSession;
+    protected SimpleSessionImpl simpleSession;
     @Nullable
     @Override
     public Session onCreateSession(String inputId) {

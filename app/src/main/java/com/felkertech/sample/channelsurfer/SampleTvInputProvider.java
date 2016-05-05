@@ -8,12 +8,15 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.text.Layout;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Surface;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.felkertech.channelsurfer.interfaces.SplashScreenable;
 import com.felkertech.channelsurfer.model.Channel;
 import com.felkertech.channelsurfer.model.Program;
 import com.felkertech.channelsurfer.service.MultimediaInputProvider;
@@ -25,7 +28,8 @@ import java.util.List;
 /**
  * Created by Nick on 1/7/2016.
  */
-public class SampleTvInputProvider extends MultimediaInputProvider {
+public class SampleTvInputProvider extends MultimediaInputProvider
+        implements SplashScreenable {
     private String TAG = "SampleTvInputProvider";
     private boolean stillActive = false;
 
@@ -79,29 +83,31 @@ public class SampleTvInputProvider extends MultimediaInputProvider {
         List<Channel> channels = new ArrayList<>();
         channels.add(new Channel()
             .setName("Time.Is")
-            .setAppLinkColor(mContext.getResources().getColor(R.color.cs_blue_500))
+            .setAppLinkColor(mContext.getResources().getColor(R.color.md_red_500))
             .setAppLinkIntent(new Intent("com.google.android.music"))
             .setAppLinkText("Open Google Play Music")
             .setAppLinkIcon("android.resource://com.felkertech.sample.channelsurfer/drawable/md_library_music")
             .setNumber("1"));
         channels.add(new Channel()
             .setName("Big Buck Bunny")
-            .setAppLinkColor(mContext.getResources().getColor(R.color.md_red_500))
+            .setAppLinkColor(mContext.getResources().getColor(R.color.cs_blue_500))
             .setAppLinkText("Open Netflix")
             .setAppLinkIntent(new Intent("com.netflix.ninja"))
             .setAppLinkIcon("android.resource://com.felkertech.sample.channelsurfer/drawable/md_movies")
             .setNumber("2"));
         channels.add(new Channel()
             .setName("Sintel")
+            .setAppLinkText("Hello")
             .setAppLinkColor(mContext.getResources().getColor(R.color.md_green_500))
             .setNumber("2-1"));
         channels.add(new Channel()
-            .setName("androidtv.news")/*
-            .setAppLinkText("Visit site")*/
+            .setName("androidtv.news")
+            .setAppLinkText("Visit site")
             .setAppLinkColor(mContext.getResources().getColor(R.color.md_purple_500))
             .setNumber("3"));
         channels.add(new Channel()
             .setName("Dance Party")
+            .setAppLinkText("Hi")
             .setAppLinkColor(mContext.getResources().getColor(R.color.md_brown_500))
             .setNumber("4"));
         Log.d(TAG, "Get channels");
@@ -245,5 +251,10 @@ public class SampleTvInputProvider extends MultimediaInputProvider {
 
     public boolean shouldShowToasts() {
         return new SettingsManager(this).getBoolean(R.string.sm_debug);
+    }
+
+    @Override
+    public View getSplashscreen(Uri channelUri) {
+        return ((LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE)).inflate(R.layout.tv_splashscreen, null);
     }
 }
