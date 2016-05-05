@@ -173,6 +173,13 @@ public class Channel {
         this.appLinkColor = appLinkColor;
         return this;
     }
+
+    /**
+     * Sets the color based on a resource. Even if the app linking intent does not work,
+     * this color will still be changed.
+     * @param appLinkColor
+     * @return
+     */
     public Channel setAppLinkColor(int appLinkColor) {
         this.appLinkColor = appLinkColor+"";
         return this;
@@ -182,6 +189,12 @@ public class Channel {
         return appLinkIcon;
     }
 
+    /**
+     * Sets the icon which will appear in the App linking tile. If this is not defined,
+     * it will default to your app's icon
+     * @param appLinkIcon
+     * @return
+     */
     public Channel setAppLinkIcon(String appLinkIcon) {
         this.appLinkIcon = appLinkIcon;
         return this;
@@ -195,6 +208,16 @@ public class Channel {
         this.appLinkIntent = appLinkIntent;
         return this;
     }
+
+    /**
+     * This sets the action that will occur when the user presses the channel
+     * If this doesn't work, or the text/icon doesn't display, then this intent will
+     * not work. Try a different one.
+     *
+     * If this intent isn't set, the text and icon will not appear
+     * @param appLinkIntent
+     * @return
+     */
     public Channel setAppLinkIntent(Intent appLinkIntent) {
         this.appLinkIntent = appLinkIntent.toUri(Intent.URI_INTENT_SCHEME);
         return this;

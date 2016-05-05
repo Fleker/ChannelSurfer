@@ -1,5 +1,6 @@
 package com.felkertech.sample.channelsurfer;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.media.tv.TvContentRating;
@@ -84,30 +85,34 @@ public class SampleTvInputProvider extends MultimediaInputProvider
         channels.add(new Channel()
             .setName("Time.Is")
             .setAppLinkColor(mContext.getResources().getColor(R.color.md_red_500))
-            .setAppLinkIntent(new Intent("com.google.android.music"))
+            .setAppLinkIntent(mContext.getPackageManager().getLaunchIntentForPackage("com.google.android.music"))
             .setAppLinkText("Open Google Play Music")
-            .setAppLinkIcon("android.resource://com.felkertech.sample.channelsurfer/drawable/md_library_music")
+//            .setAppLinkIcon(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + "com.felkertech.sample.channelsurfer" +"/drawable/md_library_music")
             .setNumber("1"));
         channels.add(new Channel()
             .setName("Big Buck Bunny")
             .setAppLinkColor(mContext.getResources().getColor(R.color.cs_blue_500))
-            .setAppLinkText("Open Netflix")
-            .setAppLinkIntent(new Intent("com.netflix.ninja"))
-            .setAppLinkIcon("android.resource://com.felkertech.sample.channelsurfer/drawable/md_movies")
+            .setAppLinkText("Open YouTube")
+            .setAppLinkIntent(mContext.getPackageManager().getLaunchIntentForPackage("com.google.android.youtube.tv"))
+//            .setAppLinkIcon(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + "com.felkertech.sample.channelsurfer" + "/"+R.drawable.md_movies)
             .setNumber("2"));
         channels.add(new Channel()
             .setName("Sintel")
             .setAppLinkText("Hello")
             .setAppLinkColor(mContext.getResources().getColor(R.color.md_green_500))
+            .setAppLinkIntent(mContext.getPackageManager().getLaunchIntentForPackage("com.google.android.youtube.tv"))
             .setNumber("2-1"));
         channels.add(new Channel()
             .setName("androidtv.news")
             .setAppLinkText("Visit site")
             .setAppLinkColor(mContext.getResources().getColor(R.color.md_purple_500))
+//            .setAppLinkIcon(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + "com.felkertech.sample.channelsurfer" +"/drawable/md_library_music")
+            .setAppLinkIntent(new Intent(Intent.ACTION_SEARCH))
             .setNumber("3"));
         channels.add(new Channel()
             .setName("Dance Party")
-            .setAppLinkText("Hi")
+            .setAppLinkText("Get Cumulus TV")
+            .setAppLinkIntent(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.felkertech.n.cumulustv")))
             .setAppLinkColor(mContext.getResources().getColor(R.color.md_brown_500))
             .setNumber("4"));
         Log.d(TAG, "Get channels");

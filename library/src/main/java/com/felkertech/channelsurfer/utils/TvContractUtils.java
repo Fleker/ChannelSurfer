@@ -111,17 +111,20 @@ public class TvContractUtils {
 
             //App Linking, Marshmallow+ only
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                Log.d(TAG, "App Linking");
                 if (channel.getAppLinkColor() != null) {
                     values.put(Channels.COLUMN_APP_LINK_COLOR, channel.getAppLinkColor());
                 } else {
                     values.putNull(Channels.COLUMN_APP_LINK_COLOR);
                 }
                 if (channel.getAppLinkIcon() != null) {
+                    Log.d(TAG, "ALI "+channel.getAppLinkIcon());
                     values.put(Channels.COLUMN_APP_LINK_ICON_URI, channel.getAppLinkIcon());
                 } else {
                     values.putNull(Channels.COLUMN_APP_LINK_ICON_URI);
                 }
                 if (channel.getAppLinkIntent() != null) {
+                    Log.d(TAG, "Intent "+channel.getAppLinkIntent());
                     values.put(Channels.COLUMN_APP_LINK_INTENT_URI, channel.getAppLinkIntent());
                 } else {
                     values.putNull(Channels.COLUMN_APP_LINK_INTENT_URI);
@@ -132,6 +135,7 @@ public class TvContractUtils {
                     values.putNull(Channels.COLUMN_APP_LINK_POSTER_ART_URI);
                 }
                 if (channel.getAppLinkText() != null) {
+                    Log.d(TAG, "ALT: "+channel.getAppLinkText());
                     values.put(Channels.COLUMN_APP_LINK_TEXT, channel.getAppLinkText());
                 } else {
                     values.putNull(Channels.COLUMN_APP_LINK_TEXT);
