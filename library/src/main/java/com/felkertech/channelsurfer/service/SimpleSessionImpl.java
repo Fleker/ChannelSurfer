@@ -34,9 +34,9 @@ public class SimpleSessionImpl extends TvInputService.Session {
     private String TAG = "SimpleSession";
     protected Channel currentChannel;
     protected Uri currentChannelUri;
-    private TvInputProvider tvInputProvider;
-    private TvInputManager inputManager;
-    private boolean isStillLoading; //If the channel is currently still loading, the system may choose to display a splashscreen if that's set
+    protected TvInputProvider tvInputProvider;
+    protected TvInputManager inputManager;
+    protected boolean isStillLoading; //If the channel is currently still loading, the system may choose to display a splashscreen if that's set
     public SimpleSessionImpl(TvInputProvider tvInputProvider) {
         super(tvInputProvider);
         this.tvInputProvider = tvInputProvider;
@@ -178,7 +178,7 @@ public class SimpleSessionImpl extends TvInputService.Session {
      *   * Uri channelUri: This is the URI corresponding to the channel you're tuning
      *   * SimpleSessionImpl session: `this`, which is used to set variables in the main class
      */
-    private class TuningTask extends AsyncTask<Object, Void, Void> {
+    protected class TuningTask extends AsyncTask<Object, Void, Void> {
         Channel channel;
         @Override
         protected Void doInBackground(Object... params) {
@@ -241,7 +241,7 @@ public class SimpleSessionImpl extends TvInputService.Session {
             return null;
         }
 
-        Handler toaster = new Handler(Looper.getMainLooper()) {
+        private Handler toaster = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
