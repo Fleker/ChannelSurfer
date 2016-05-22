@@ -68,8 +68,7 @@ public class M3UParser {
                         } else if (part.startsWith("tvg-logo=")) {
                             int end = part.indexOf("\"", 10);
                             if (end > 10) {
-                                icon = "http://logo.iptv.ink/"
-                                        + part.substring(10, end);
+                                icon = part.substring(10, end);
                             }
                         }
                     }

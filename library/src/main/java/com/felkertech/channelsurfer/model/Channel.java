@@ -1,6 +1,13 @@
 package com.felkertech.channelsurfer.model;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.media.tv.TvContentRating;
+import android.media.tv.TvContract;
+import android.text.TextUtils;
+
+import com.felkertech.channelsurfer.utils.TvContractUtils;
 
 import java.util.List;
 
@@ -17,12 +24,16 @@ public class Channel {
     private int videoHeight;
     private List<Program> programs;
     private int channelId;
+    private boolean audioOnly = false;
     //App Links
     private String appLinkColor;
     private String appLinkIcon;
     private String appLinkIntent;
     private String appLinkPoster;
     private String appLinkText;
+
+    private static final long INVALID_LONG_VALUE = -1;
+    private static final int INVALID_INT_VALUE = -1;
 
     public Channel() {}
     public Channel(String number, String name, String logoUrl, int originalNetworkId,
@@ -239,5 +250,212 @@ public class Channel {
     public Channel setAppLinkText(String appLinkText) {
         this.appLinkText = appLinkText;
         return this;
+    }
+
+    public boolean isAudioOnly() {
+        return audioOnly;
+    }
+
+    public void copyFrom(Channel other) {
+        if (this == other) {
+            return;
+        }
+
+        internalProviderData = other.internalProviderData;
+        name = other.name;
+        number = other.number;
+        videoHeight = other.videoHeight;
+        videoWidth = other.videoWidth;
+        appLinkColor = other.appLinkColor;
+        appLinkIcon = other.appLinkIcon;
+        appLinkIntent = other.appLinkIntent;
+        appLinkPoster = other.appLinkPoster;
+        appLinkText = other.appLinkText;
+        channelId = other.channelId;
+        description = other.description;
+    }
+
+    public ContentValues toContentValues() {
+        ContentValues values = new ContentValues();
+        if (!TextUtils.isEmpty(name)) {
+            values.put(TvContract.Channels.COLUMN_DISPLAY_NAME, name);
+        } else {
+            values.putNull(TvContract.Channels.COLUMN_DISPLAY_NAME);
+        }
+        if (!TextUtils.isEmpty(number)) {
+            values.put(TvContract.Channels.COLUMN_DISPLAY_NUMBER, number);
+        } else {
+            values.putNull(TvContract.Channels.COLUMN_DISPLAY_NUMBER);
+        }
+        if (channelId != INVALID_INT_VALUE) {
+            values.put(TvContract.Channels.COLUMN_INPUT_ID, channelId);
+        } else {
+            values.putNull(TvContract.Channels.COLUMN_INPUT_ID);
+        }
+        if (!TextUtils.isEmpty(description)) {
+            values.put(TvContract.Channels.COLUMN_DESCRIPTION, description);
+        } else {
+            values.putNull(TvContract.Channels.COLUMN_DESCRIPTION);
+        }
+        if (!TextUtils.isEmpty(appLinkPoster)) {
+            values.put(TvContract.Channels.COLUMN_APP_LINK_POSTER_ART_URI, appLinkPoster);
+        } else {
+            values.putNull(TvContract.Channels.COLUMN_APP_LINK_POSTER_ART_URI);
+        }
+        if (!TextUtils.isEmpty(appLinkIcon)) {
+            values.put(TvContract.Channels.COLUMN_APP_LINK_ICON_URI, appLinkIcon);
+        } else {
+            values.putNull(TvContract.Channels.COLUMN_APP_LINK_ICON_URI);
+        }
+        if (!TextUtils.isEmpty(appLinkColor)) {
+            values.put(TvContract.Channels.COLUMN_APP_LINK_COLOR, appLinkColor);
+        } else {
+            values.putNull(TvContract.Channels.COLUMN_APP_LINK_COLOR);
+        }
+        if (!TextUtils.isEmpty(appLinkIntent)) {
+            values.put(TvContract.Channels.COLUMN_APP_LINK_INTENT_URI, appLinkIntent);
+        } else {
+            values.putNull(TvContract.Channels.COLUMN_APP_LINK_INTENT_URI);
+        }
+        if (!TextUtils.isEmpty(appLinkText)) {
+            values.put(TvContract.Channels.COLUMN_APP_LINK_TEXT, appLinkText);
+        } else {
+            values.putNull(TvContract.Channels.COLUMN_APP_LINK_TEXT);
+        }
+        if (!TextUtils.isEmpty(internalProviderData)) {
+            values.put(TvContract.Channels.COLUMN_INTERNAL_PROVIDER_DATA, internalProviderData);
+        } else {
+            values.putNull(TvContract.Channels.COLUMN_INTERNAL_PROVIDER_DATA);
+        }
+        if(isAudioOnly()) {
+            values.put(TvContract.Channels.COLUMN_SERVICE_TYPE, TvContract.Channels.SERVICE_TYPE_AUDIO);
+        } else {
+            values.put(TvContract.Channels.COLUMN_SERVICE_TYPE, TvContract.Channels.SERVICE_TYPE_AUDIO_VIDEO);
+        }
+        return values;
+    }
+
+    public static Channel fromCursor(Cursor cursor) {
+        Builder builder = new Builder();
+        int index = cursor.getColumnIndex(TvContract.Channels._ID);
+        if (index >= 0 && !cursor.isNull(index)) {
+            builder.setChannelId((int) cursor.getLong(index));
+        }
+        index = cursor.getColumnIndex(TvContract.Channels.COLUMN_DISPLAY_NAME);
+        if (index >= 0 && !cursor.isNull(index)) {
+            builder.setTitle(cursor.getString(index));
+        }
+        index = cursor.getColumnIndex(TvContract.Channels.COLUMN_DISPLAY_NUMBER);
+        if (index >= 0 && !cursor.isNull(index)) {
+            builder.setChannelNumber(cursor.getString(index));
+        }
+        index = cursor.getColumnIndex(TvContract.Channels.COLUMN_APP_LINK_COLOR);
+        if(index >= 0 && !cursor.isNull(index)) {
+            builder.setAppLinkColor(cursor.getString(index));
+        }
+        index = cursor.getColumnIndex(TvContract.Channels.COLUMN_APP_LINK_ICON_URI);
+        if(index >= 0 && !cursor.isNull(index)) {
+            builder.setAppLinkIcon(cursor.getString(index));
+        }
+        index = cursor.getColumnIndex(TvContract.Channels.COLUMN_APP_LINK_INTENT_URI);
+        if(index >= 0 && !cursor.isNull(index)) {
+            builder.setAppLinkIntent(cursor.getString(index));
+        }
+        index = cursor.getColumnIndex(TvContract.Channels.COLUMN_APP_LINK_POSTER_ART_URI);
+        if(index >= 0 && !cursor.isNull(index)) {
+            builder.setAppLinkPoster(cursor.getString(index));
+        }
+        index = cursor.getColumnIndex(TvContract.Channels.COLUMN_APP_LINK_TEXT);
+        if(index >= 0 && !cursor.isNull(index)) {
+            builder.setAppLinkText(cursor.getString(index));
+        }
+        index = cursor.getColumnIndex(TvContract.Channels.COLUMN_DESCRIPTION);
+        if (index >= 0 && !cursor.isNull(index)) {
+            builder.setDescription(cursor.getString(index));
+        }
+        index = cursor.getColumnIndex(TvContract.Channels.COLUMN_INTERNAL_PROVIDER_DATA);
+        if (index >= 0 && !cursor.isNull(index)) {
+            builder.setInternalProviderData(cursor.getString(index));
+        }
+        return builder.build();
+    }
+
+    public static final class Builder {
+        private final Channel mChannel;
+
+        public Builder() {
+            mChannel = new Channel();
+        }
+
+        public Builder(Channel other) {
+            mChannel = new Channel();
+            mChannel.copyFrom(other);
+        }
+
+        public Builder setChannelId(int channelId) {
+            mChannel.channelId = channelId;
+            return this;
+        }
+
+        public Builder setTitle(String title) {
+            mChannel.name = title;
+            return this;
+        }
+
+        public Builder setChannelNumber(String title) {
+            mChannel.number = title;
+            return this;
+        }
+
+        public Builder setDescription(String description) {
+            mChannel.description = description;
+            return this;
+        }
+
+        public Builder setVideoWidth(int width) {
+            mChannel.videoWidth = width;
+            return this;
+        }
+
+        public Builder setVideoHeight(int height) {
+            mChannel.videoHeight = height;
+            return this;
+        }
+
+        public Builder setInternalProviderData(String data) {
+            mChannel.internalProviderData = data;
+            return this;
+        }
+
+        public Builder setAppLinkColor(String appLinkColor) {
+            mChannel.appLinkColor = appLinkColor;
+            return this;
+        }
+
+        public Builder setAppLinkIcon(String appIconUri) {
+            mChannel.appLinkIcon = appIconUri;
+            return this;
+        }
+
+        public Builder setAppLinkIntent(String appLinkIntent) {
+            mChannel.appLinkIntent = appLinkIntent;
+            return this;
+        }
+        public Builder setAppLinkPoster(String appLinkIntent) {
+            mChannel.appLinkPoster = appLinkIntent;
+            return this;
+        }
+        public Builder setAppLinkText(String appLinkIntent) {
+            mChannel.appLinkText = appLinkIntent;
+            return this;
+        }
+        public Builder setAudioOnly(boolean isAudioOnly) {
+            mChannel.audioOnly = isAudioOnly;
+            return this;
+        }
+
+        public Channel build() {
+            return mChannel;
+        }
     }
 }
