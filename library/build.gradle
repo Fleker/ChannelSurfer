@@ -27,6 +27,6 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:support-annotations:23.3.0'
-    compile 'com.google.android.exoplayer:exoplayer:r1.5.7'
+    compile 'com.google.android.exoplayer:exoplayer:r1.5.9'
 //    compile 'com.github.fleker:settingsmanager:1.1.5'
 }

@@ -33,6 +33,9 @@ public class LiveChannelsUtils {
         }
         return null;
     }
+    public static boolean hasLiveChannels(Activity mActivity) {
+        return getLiveChannels(mActivity) != null;
+    }
     private static boolean isPackageInstalled(String packagename, Context context) {
         PackageManager pm = context.getPackageManager();
         try {
@@ -42,9 +45,10 @@ public class LiveChannelsUtils {
             return false;
         }
     }
+
     /**
      Returns the TvInputProvider that was defined by the project's manifest
-     **/
+     */
     public static TvInputProvider getTvInputProvider(Context mContext, final TvInputProviderCallback callback) {
         ApplicationInfo app = null;
         try {

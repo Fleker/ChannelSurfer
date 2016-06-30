@@ -216,9 +216,9 @@ public class TvInputPlayer implements TextRenderer {
                             //Need a timestamp adjuster I guess
                             PtsTimestampAdjusterProvider timestampAdjusterProvider = new PtsTimestampAdjusterProvider();
 
-                            HlsChunkSource chunkSource = new HlsChunkSource(true, dataSource, uri.toString(),
+                            HlsChunkSource chunkSource = new HlsChunkSource(true, dataSource,
                                     hlsPlaylist, DefaultHlsTrackSelector.newDefaultInstance(context), bandwidthMeter,
-                                    timestampAdjusterProvider, HlsChunkSource.ADAPTIVE_MODE_SPLICE);
+                                    timestampAdjusterProvider, HlsChunkSource.ADAPTIVE_MODE_SPLICE, 1000, 1000);
 
                             LoadControl lhc = new DefaultLoadControl(new DefaultAllocator(BUFFER_SEGMENT_SIZE));
                             HlsSampleSource sampleSource = new HlsSampleSource(chunkSource, lhc, BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE);
