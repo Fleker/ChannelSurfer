@@ -1,6 +1,11 @@
 # ChannelSurfer
 Simple Live Channels library for Android TV
 
+# **MAJOR NOTE**
+This project has been deprecated in favor of the [Tv Input Framework Companion Library](https://github.com/googlesamples/androidtv-sample-inputs). You can learn more on the [Android Developers Blog](https://android-developers.googleblog.com/2016/11/adding-tv-channels-to-your-app-with-the-tif-companion-library.html?hl=ja) or through the post on [Android TV News](https://androidtv.news/2016/11/summer-building-tif-companion-library-android-tv/).
+
+This libray decouples the player from the model, and makes several improvements overall. It's a complete rewrite of this project, and it is much cleaner.
+
 ## What is this?
 I had already gotten some experience with creating an app which supported Android TV's Live Channels when I developed and published <a href='https://github.com/fleker/cumulustv'></a>Cumulus TV</a>. 
 
